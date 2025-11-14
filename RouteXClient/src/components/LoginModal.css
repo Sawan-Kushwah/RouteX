@@ -1,0 +1,75 @@
+/* Improved modal visuals (glass + blur) and refined animations */
+@keyframes rx-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes rx-slideUp {
+  from { transform: translateY(18px) scale(0.995); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* Backdrop with subtle blur for a modern look */
+.login-modal-overlay {
+  animation: rx-fadeIn 240ms ease-in-out;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.login-modal-container {
+  animation: rx-slideUp 260ms cubic-bezier(.12,.9,.32,1) both;
+  /* glass card */
+  background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(250,250,250,0.92));
+  border-radius: 14px;
+  box-shadow: 0 18px 45px rgba(6, 7, 11, 0.6), inset 0 1px 0 rgba(255,255,255,0.6);
+  border: 1px solid rgba(255,255,255,0.6);
+}
+
+/* Close button: clear circular icon */
+.login-modal-close {
+  background: rgba(255,255,255,0.85);
+  border-radius: 9999px;
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  transition: transform 150ms ease, background 150ms ease, color 150ms ease;
+}
+.login-modal-close:hover {
+  transform: translateY(-3px);
+  background: white;
+}
+
+/* Title and content spacing are handled by Tailwind — keep only small helpers */
+.login-modal-title {
+  letter-spacing: -0.02em;
+}
+
+/* Error box with subtle icon-like left border */
+.login-modal-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(90deg, rgba(255,240,240,0.9), rgba(255,248,248,0.95));
+  border-left: 6px solid rgba(220,38,38,0.9);
+  color: #8b1b1b;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+/* Scope focus ring inside login modal to avoid global conflicts */
+.login-modal-container .form-input:focus {
+  outline: none;
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.12);
+}
+
+/* Responsive tweaks */
+@media (max-width: 560px) {
+  .login-modal-container { padding: 20px; }
+  .login-modal-title { font-size: 1.25rem; }
+}
+
+

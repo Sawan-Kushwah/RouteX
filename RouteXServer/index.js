@@ -1,15 +1,24 @@
 import { Server } from "socket.io";
 import express from 'express'
 import { createServer } from 'http';
+import dotenv from 'dotenv';
+import connectDB from "./db/connectDB.js";
+dotenv.config();
+import cors from 'cors';
 
-const port = 3000;
+
+import busRoutes from './routes/busRoutes.js';
+import bus from './routes/bus.js';
+import admin from './routes/admin.js';
+
+
 const app = express();
 const httpServer = createServer(app);
+
 
 const io = new Server(httpServer, {
     cors: { origin: ['http://localhost:5173'], credentials: true }
 });
-
 
 // akk empty array rhe ga
 // jse hi bus ki location update hogi
@@ -18,6 +27,28 @@ const io = new Server(httpServer, {
 const busLocations = [];
 
 
+
+
+connectDB();
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors());
+app.use('/bus' , bus);
+app.use('/routes' , busRoutes);
+app.use('/admin', admin);
+
+
+
+
+// setInterval(() => {
+//     busLocations.forEach(bus => {
+//         bus.lat += (Math.random() - 0.5) * 0.01;
+//         bus.lng += (Math.random() - 0.5) * 0.01;
+//     }
+//     );
+//     io.emit("busUpdate", busLocations);
+// }, 5000);
 
 
 io.on("connection", (socket) => {
@@ -43,6 +74,6 @@ io.on("connection", (socket) => {
     })
 });
 
-httpServer.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+httpServer.listen(process.env.PORT, () => {
+    console.log(`Server is running on http://localhost:${process.env.PORT}`);
 });
