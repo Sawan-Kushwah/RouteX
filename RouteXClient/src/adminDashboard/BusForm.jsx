@@ -23,7 +23,7 @@ export default function BusForm({ onClose, onAddBus }) {
             status: status.toLowerCase()
         })
         console.log(response)
-        if (response.status === 200 || response.status === 201) {
+        if (response.status === 200) {
             setAddedBus(response.data.bus)
             setShowSuccess(true)
             setBusNo('')
@@ -98,7 +98,7 @@ export default function BusForm({ onClose, onAddBus }) {
               onClose={handleSuccessClose}
               buttonText="Done"
               autoClose={true}
-              autoCloseDelay={10000}
+              autoCloseDelay={5000}
             />
         </>
     )

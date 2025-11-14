@@ -6,6 +6,8 @@ import routesData from '../utils/routeData'
 import RouteForm from './RouteForm'
 import busData from '../utils/busData'
 import BusForm from './BusForm'
+import axios from 'axios'
+import server from '../utils/backendServer'
 
 
 export default function AdminDashboard() {
@@ -16,7 +18,7 @@ export default function AdminDashboard() {
   const [showBusDashboard, setShowBusDashboard] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [routes, setRoutes] = useState(routesData)
-  const [buses, setBuses] = useState(busData)
+  const [buses, setBuses] = useState([])
   const [showRouteForm, setShowRouteForm] = useState(false)
   const [showBusForm, setShowBusForm] = useState(false);
   const [assignedBus, setAssignedBus] = useState(0);
@@ -33,7 +35,17 @@ export default function AdminDashboard() {
   const [activeBus, setActiveBus] = useState(0);
   const [inActiveBus, setInActiveBus] = useState(0);
 
+  async function fetchBuses() {
+    try {
+      const response = await axios.get(`${server}/bus/getAllBuses`);
+      setBuses(response.data.buses);
+    } catch (error) {
+      console.error("Error fetching buses:", error);
+    }
+  }
+
   useEffect(() => {
+    fetchBuses();
     let activeCount = 0;
     let inActiveCount = 0;
     buses.forEach((bus) => {
@@ -53,20 +65,18 @@ export default function AdminDashboard() {
   const handleAddRoute = (newR) => {
     setNewRoute([...newRoute, newR])
   }
-
-
-
+  
   // Use the reusable search hook
   const { filteredItems: filteredRoutes } = useSearch(
     searchQuery,
     routes,
-    ['routeNo', 'routeNo', 'busNo', 'stops']
+    ['routeNo', 'busNo', 'stops']
   )
 
   const { filteredItems: filteredBuses } = useSearch(
     searchQuery,
     buses,
-    ['busNumber', 'route', 'driver', 'status']
+    ['status', 'busNo', 'numberPlate']
   )
   useEffect(() => {
     // theme init from localStorage or prefered scheme

@@ -26,16 +26,13 @@ const io = new Server(httpServer, {
 // agar nhi he to nwe bus add kar di jagi
 const busLocations = [];
 
-
-
-
 connectDB();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
-app.use('/bus' , bus);
-app.use('/routes' , busRoutes);
+app.use('/bus', bus);
+app.use('/routes', busRoutes);
 app.use('/admin', admin);
 
 
@@ -56,20 +53,20 @@ io.on("connection", (socket) => {
     socket.on("busUpdate", (data) => {
         console.log("Received busUpdate:", data);
         // check if bus already exists in the array
-        const busExists = busLocations.map((bus) => { 
-            if(bus.busId === data.busId) {
+        const busExists = busLocations.map((bus) => {
+            if (bus.busId === data.busId) {
                 bus.lat = data.lat;
                 bus.lng = data.lng;
                 bus.speed = data.speed;
                 bus.timestamp = data.timestamp;
                 return true;
             }
-    });
-    if(!busExists.includes(true)) {
-        busLocations.push(data);
-    }
-       
-       
+        });
+        if (!busExists.includes(true)) {
+            busLocations.push(data);
+        }
+
+
         io.emit("busUpdate", busLocations);
     })
 });

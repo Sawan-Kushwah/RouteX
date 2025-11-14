@@ -21,7 +21,7 @@ const addBus = async (req, res) => {
         }
         const newBus = new Bus({ busNo, numberPlate, status });
         await newBus.save();
-        res.status(201).json({ message: "Bus added successfully", bus: newBus });
+        res.status(200).json({ message: "Bus added successfully", bus: newBus });
     }
     catch (error) {
         res.status(500).json({ message: "Error adding bus", error: error.message });
