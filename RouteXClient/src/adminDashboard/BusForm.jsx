@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import SuccessModal from '../components/SuccessModal'
 import axios from 'axios'
 import server from '../utils/backendServer'
 
-export default function BusForm({ onClose, onAddBus }) {
+export default function BusForm({ onClose, setBusDataChanged }) {
     const [busNo, setBusNo] = useState('')
     const [numberPlate, setNumberPlate] = useState('')
     const [status, setStatus] = useState('Active')
@@ -18,7 +18,7 @@ export default function BusForm({ onClose, onAddBus }) {
         }
         console.log('submitting bus:', { busNo, numberPlate, status })
         const response = await axios.post(`${server}/bus/addBus`, {
-            busNo: busNo.trim().toLowerCase(),
+            busNo: busNo,
             numberPlate: numberPlate.trim().toLowerCase(),
             status: status.toLowerCase()
         })
@@ -29,6 +29,7 @@ export default function BusForm({ onClose, onAddBus }) {
             setBusNo('')
             setNumberPlate('')
             setStatus('Active')
+            setBusDataChanged(true);
         } else {
             alert('Failed to add bus. Please try again.')
             return
@@ -56,7 +57,7 @@ export default function BusForm({ onClose, onAddBus }) {
                                 value={busNo}
                                 onChange={(e) => setBusNo(e.target.value)}
                                 className="w-full mt-1 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                placeholder="e.g., BUS-101"
+                                placeholder="e.g. 101"
                             />
                         </div>
 

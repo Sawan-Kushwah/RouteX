@@ -4,7 +4,7 @@ import axios from 'axios'
 import server from '../utils/backendServer';
 import SuccessModal from '../components/SuccessModal';
 
-export default function BusDashboard({ filteredBuses }) {
+export default function BusDashboard({ filteredBuses, setBusDataChanged }) {
     const [showSuccess, setShowSuccess] = useState(false)
     const [deletedBus, setDeletedBus] = useState(null)
     const [editingId, setEditingId] = useState(null)
@@ -18,6 +18,7 @@ export default function BusDashboard({ filteredBuses }) {
         if (response.status === 200) {
             setDeletedBus(response.data.bus)
             setShowSuccess(true)
+            setBusDataChanged(true);
             console.log('bus deleted successfully', response.data.bus)
         } else {
             alert('Failed to delete bus')
@@ -52,6 +53,7 @@ export default function BusDashboard({ filteredBuses }) {
                 setShowUpdateSuccess(true)
                 setEditingId(null)
                 setEditData({})
+                setBusDataChanged(true);
             }
         } catch (error) {
             alert('Failed to update bus. Please try again.')
@@ -100,7 +102,7 @@ export default function BusDashboard({ filteredBuses }) {
                                                 className="w-full px-2 py-1 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                                             />
                                         ) : (
-                                            bus.busNo.toUpperCase()
+                                            `BUS = 🚌${bus.busNo}`
                                         )}
                                     </td>
                                     <td className="px-4 py-3 text-sm">

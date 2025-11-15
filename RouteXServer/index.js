@@ -9,7 +9,9 @@ import cors from 'cors';
 
 import busRoutes from './routes/busRoutes.js';
 import bus from './routes/bus.js';
-import admin from './routes/admin.js';
+import user from './routes/authentication.js';
+import driver from './routes/busDriver.js';
+import cookieParser from "cookie-parser";
 
 
 const app = express();
@@ -30,10 +32,16 @@ connectDB();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:5173",  // your frontend URL
+    credentials: true
+}));
+// parse cookies before route handlers so controllers can access `req.cookies`
+app.use(cookieParser());
 app.use('/bus', bus);
 app.use('/routes', busRoutes);
-app.use('/admin', admin);
+app.use('/user', user);
+app.use('/driver', driver)
 
 
 

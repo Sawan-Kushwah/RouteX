@@ -1,9 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
 import socket from '../utils/socket'
+import axios from 'axios';
+import server from '../utils/backendServer';
+import { useNavigate } from 'react-router-dom';
 
 
 // start transmiting location 
-function TransmitonPage() {
+function SelectBus() {
+  const navigate = useNavigate()
   const routes = [
     { routeNo: 21, route: "some route", busNo: 'BUS-21', bus_id: "", _id: "" },
     { routeNo: 22, route: "some route", busNo: 'BUS-22', bus_id: "", _id: "" },
@@ -46,8 +50,20 @@ function TransmitonPage() {
     }
   }
 
+  
+  const handleLogout = async () => {
+    await axios.get(`${server}/user/logout`, { withCredentials: true });
+    navigate('/')
+  }
+
   return (
     <>
+     <div className="px-6 my-6">
+            <button onClick={handleLogout} className="flex items-center justify-between w-full px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-red-600 border border-transparent rounded-lg active:bg-red-600 hover:bg-red-700 focus:outline-none focus:shadow-outline-red cursor-pointer">
+              logout
+              <span className="ml-2" aria-hidden="true">+</span>
+            </button>
+          </div>
       {
         (!busSelected) ?
           <div className="w-full bg-gray-700 h-screen flex-col gap-10 items-center mt-20 text-white ">
@@ -80,4 +96,4 @@ function TransmitonPage() {
   )
 }
 
-export default TransmitonPage
+export default SelectBus

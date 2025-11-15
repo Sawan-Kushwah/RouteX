@@ -40,8 +40,7 @@ export default function SuccessModal({
                     {Object.keys(details).length > 0 && (
                         <div className="text-left w-full bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-2">
                             {Object.entries(details).map(([key, value]) => {
-
-                                if (key == '_id' || key == '__v' || key == 'updatedAt') return null;
+                                if (key == '_id' || key == '__v' || key == 'updatedAt' || key == 'password') return null;
                                 return (
 
                                     <div key={key} className="flex justify-between items-start gap-2">

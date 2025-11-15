@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 const busSchema = new mongoose.Schema({
-    busNo: { type: String, required: true },
+    busNo: { type: Number, required: true },
     numberPlate: { type: String, required: true },
     status: { type: String, enum: ['active', 'inactive', 'maintenance'], default: 'active' }
 }, { timestamps: true });
