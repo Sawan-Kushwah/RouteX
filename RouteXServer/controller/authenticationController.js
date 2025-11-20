@@ -86,7 +86,6 @@ const verifyToken = (req, res) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
     res.cookie("authToken", token, {
       httpOnly: true,
       secure: false,

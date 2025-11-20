@@ -11,9 +11,13 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged }) {
     const [showUpdateSuccess, setShowUpdateSuccess] = useState(false)
     const [updatedBus, setUpdatedBus] = useState(null)
 
-    const handleDelete = async (busId) => {
-        const response = await axios.delete(`${server}/bus/deleteBus/${busId}`)
-        console.log('deleting bus:', busId, response)
+    const handleDelete = async (bus) => {
+        if(bus.status === 'assigned'){
+            alert('You cannot delete a assigned bus')
+            return
+        }
+        const response = await axios.delete(`${server}/bus/deleteBus/${bus._id}`)
+        console.log('deleting bus:', bus._id, response)
         if (response.status === 200) {
             setDeletedBus(response.data.bus)
             setShowSuccess(true)
@@ -74,6 +78,7 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged }) {
         setShowUpdateSuccess(false)
         setUpdatedBus(null)
     }
+
     return (
         <div>
             <div className="w-full overflow-hidden rounded-lg shadow-xs">
@@ -90,7 +95,7 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged }) {
                         </thead>
                         <tbody className="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
 
-                            {filteredBuses.map((bus) => (
+                            {filteredBuses.length > 0 ? (filteredBuses.map((bus) => (
                                 <tr key={bus._id} className="text-gray-700 dark:text-gray-400">
                                     <td className="px-4 py-3 text-sm font-semibold">
                                         {editingId === bus._id ? (
@@ -132,8 +137,8 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged }) {
                                                 onChange={(e) => handleInputChange('status', e.target.value)}
                                                 className="px-2 py-1 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                                             >
-                                                <option value="assigned">assigned</option>
-                                                <option value="unassigned">unassigned</option>
+                                                {editData.status === 'assigned' && <option value="assigned">assigned</option>}
+                                                {editData.status === 'unassigned' &&   <option value="unassigned">unassigned</option>}                                              
                                                 <option value="maintenance">maintenance</option>
                                             </select>
                                         ) : (
@@ -143,7 +148,7 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged }) {
                                                     : (bus.status === 'unassigned' ? 'text-red-700 bg-red-100 dark:bg-red-700 dark:text-red-100' : 'text-yellow-700 bg-yellow-100 dark:bg-yellow-700 dark:text-yellow-100')
                                                     }`}
                                             >
-                                                {bus.status}
+                                                {bus.status !== 'maintenance' ? 'Route' : ''} {bus.status}
                                             </span>
                                         )}
                                     </td>
@@ -202,7 +207,7 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged }) {
                          bg-red-100 text-red-700 hover:bg-red-200 
                          dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 
                          transition font-semibold shadow-sm cursor-pointer"
-                                                        onClick={() => handleDelete(bus._id)}
+                                                        onClick={() => handleDelete(bus)}
                                                     >
                                                         <svg xmlns="http://www.w3.org/2000/svg"
                                                             className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -216,7 +221,15 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged }) {
                                         </div>
                                     </td>
                                 </tr>
-                            ))}
+                            ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="5" className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                                        No bus added yet. Click "Add a new bus" to get started.
+                                    </td>
+                                </tr>
+                            )
+                            }
                         </tbody>
                     </table>
                 </div>

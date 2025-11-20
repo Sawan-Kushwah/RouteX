@@ -21,17 +21,15 @@ function SelectBus() {
   // Fetch routes from server on mount
   useEffect(() => {
     fetchRoutes()
-    console.log('fetching routes ');
-    
+    console.log('fetching routes');
   }, [])
 
   const fetchRoutes = async () => {
     try {
       setLoading(true)
-      const response = await axios.get(`${server}/routes/getAllRoutes`)
+      const response = await axios.get(`${server}/routes/getAllAssignedRoutes`)
       if (response.status === 200) {
-        const validRoutes = response.data.routes.filter((route) => route.busNo !== -1)
-        setRoutes(validRoutes || [])
+        setRoutes(response.data.routes)
         setError(response.message)
       }
     } catch (err) {
@@ -97,7 +95,7 @@ function SelectBus() {
   const { filteredItems: filteredRoutes } = useSearch(searchQuery, routes, ['busNo', 'routeNo', 'stops'])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900">
       {/* Header */}
       <div className="sticky top-0 z-50 bg-gray-800 shadow-lg border-b border-purple-500">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
@@ -175,7 +173,7 @@ function SelectBus() {
                     <div
                       key={route._id || index}
                       onClick={() => startTransmission(route)}
-                      className="group bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 hover:border-purple-500 rounded-lg p-6 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20 cursor-pointer"
+                      className="group bg-linear-to-br from-gray-800 to-gray-900 border border-gray-700 hover:border-purple-500 rounded-lg p-6 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20 cursor-pointer"
                     >
                       {/* Route Header */}
                       <div className="flex items-start justify-between mb-4">
@@ -247,7 +245,7 @@ function SelectBus() {
         ) : (
           /* Transmission Active Screen */
           <div className="max-w-2xl mx-auto">
-            <div className="bg-gradient-to-br from-purple-900 to-gray-900 border-2 border-purple-500 rounded-lg p-8 shadow-2xl">
+            <div className="bg-linear-to-br from-purple-900 to-gray-900 border-2 border-purple-500 rounded-lg p-8 shadow-2xl">
               {/* Status Indicator */}
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
@@ -301,7 +299,7 @@ function SelectBus() {
               {/* Stop Transmission Button */}
               <button
                 onClick={stopTransmission}
-                className="w-full px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold rounded-lg transition-all duration-200 cursor-pointer"
+                className="w-full px-4 py-3 bg-linear-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold rounded-lg transition-all duration-200 cursor-pointer"
               >
                 Stop Transmission
               </button>

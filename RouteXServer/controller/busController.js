@@ -3,10 +3,19 @@ import Bus from "../models/busModel.js";
 const getAllBuses = async (req, res) => {
     try {
         const buses = await Bus.find({});
+        let assignedBusCount = 0;
+        let unassignedBusCount = 0;
+        let maintenanceBusCount = 0;
+        buses.forEach((bus) => {
+            if (bus.status === 'assigned') assignedBusCount++;
+            else if (bus.status === 'unassigned') unassignedBusCount++;
+            else if (bus.status === 'maintenance') maintenanceBusCount++;
+        });
+
         if (!buses) {
             return res.status(500).json({ message: "Error fetching buses", error: err.message });
         }
-        res.status(200).json({ message: "Fetched all buses successfully", buses });
+        res.status(200).json({ message: "Fetched all buses successfully", buses, assignedBusCount, unassignedBusCount, maintenanceBusCount });
     } catch (error) {
         res.status(500).json({ message: "Error fetching buses", error: error.message });
     }
@@ -44,7 +53,7 @@ const updateBus = async (req, res) => {
         res.status(500).json({ message: "Error updating bus", error: error.message });
     }
 }
-
+ 
 const deleteBus = async (req, res) => {
     try {
         const busId = req.params.id;

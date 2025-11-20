@@ -3,7 +3,6 @@ import { useSearch } from '../utils/useSearch'
 import BusDashboard from './BusDashboard'
 import RoutesDashboard from './RoutesDashboard'
 import DriverDashboard from './DriverDashboard'
-// import routesData from '../utils/routeData'
 import RouteForm from './RouteForm'
 import BusForm from './BusForm'
 import axios from 'axios'
@@ -22,11 +21,10 @@ export default function AdminDashboard() {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
   const [showBusDashboard, setShowBusDashboard] = useState(false)
   const [showDriverDashboard, setShowDriverDashboard] = useState(false)
-  // const [showRouteDashboard, setShowRouteDashboard] = useState(false)
+  const [showRouteDashboard, setShowRouteDashboard] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [showRouteForm, setShowRouteForm] = useState(false)
   const [showBusForm, setShowBusForm] = useState(false);
-  const [assignedBus, setAssignedBus] = useState([]);
   const [unAssignedBus, setUnAssignedBus] = useState([]);
   const [assignedBusCount, setAssignedBusCount] = useState(0);
   const [unAssignedBusCount, setUnAssignedBusCount] = useState(0);
@@ -40,44 +38,37 @@ export default function AdminDashboard() {
   const [drivers, setDrivers] = useState([])
   const [routes, setRoutes] = useState([])
 
-  const [showRouteDashboard, setShowRouteDashboard] = useState(false);
 
   async function fetchRoutes() {
     console.log("fetching route")
     try {
       const response = await axios.get(`${server}/routes/getAllRoutes`);
-      if (routes.length == 0) {
-        setRoutes(response.data.routes);
-        setShowRouteDashboard(true);
-      }
-      if(buses.length === 0){
-        fetchBuses();
-      }
+      setRoutes(response.data.routes || []);
+      setUnAssignedBus(response.data.unassignedBus || []);
+      console.log("fecthing route data ", response)
+      setRoutesDataChanged(false);
     } catch (error) {
       console.error("Error fetching routes:", error);
     }
   }
 
 
-
-
   async function fetchBuses() {
-    console.log("in fetch bus")
+    console.log("fetching bus")
     try {
       const response = await axios.get(`${server}/bus/getAllBuses`);
-      setBuses(response.data.buses);
-      console.log("Buses fetched:", response.data.buses);
+      setBuses(response.data.buses || []);
       setBusDataChanged(false);
+      setAssignedBusCount(response.data.assignedBusCount);
+      setUnAssignedBusCount(response.data.unassignedBusCount);
     } catch (error) {
       console.error("Error fetching buses:", error);
     }
   }
 
 
-
-
   async function fetchDrivers() {
-    // console.log('fetch driver')
+    console.log('fetching driver')
     try {
       const response = await axios.get(`${server}/driver/getAllDrivers`)
       setDrivers(response.data.drivers || [])
@@ -88,59 +79,31 @@ export default function AdminDashboard() {
   }
 
 
-
-  // make an arr of assigned bus no from routes and unassigned bus no from buses
-
-  useEffect(() => {
-    // reset assigned and unassigned bus arrays
-    console.log("Calculating assigned and unassigned buses...");
-    console.log("All Buses in useEffect: ", buses);
-    console.log("All Routes in useEffect: ", routes);
-    setAssignedBus([]);
-    if(buses.length === 0){
-      fetchBuses();
-      return;
-    }
-
-    buses.forEach((bus) => {
-      console.log("Checking bus:", bus.busNo, "with status:", bus.status);
-      if (bus.status === 'assigned') {
-        setAssignedBus([bus, ...assignedBus]);
-      } else if (bus.status === 'unassigned') {
-        setUnAssignedBus([bus, ...unAssignedBus]);
-      }
-    })
-
-    setAssignedBusCount(assignedBus.length);
-    setUnAssignedBusCount(unAssignedBus.length);
-  }, [buses, routes]);
-
-
-
-
   const handleManageRoutes = () => {
+    setShowRouteDashboard(true);
     setShowBusDashboard(false);
     setShowDriverDashboard(false);
-    if (routes.length === 0)
+    if (routes.length === 0 || routesDataChanged){
       fetchRoutes();
+      setRoutesDataChanged(false);
+    }
   }
 
   const handleMangeBus = () => {
     setShowBusDashboard(true);
     setShowDriverDashboard(false);
-    // setShowRouteDashboard(false);
-    if (buses.length === 0)
+    setShowRouteDashboard(false);
+    if (buses.length === 0 || busDataChanged){
       fetchBuses();
+      setBusDataChanged(false)
+    }
   }
-
-
 
 
   const handleManageDrivers = () => {
     setShowDriverDashboard(true);
     setShowBusDashboard(false);
-    // setShowRouteDashboard(false);
-    // fetch drivers when opening drivers view or when data was flagged as changed
+    setShowRouteDashboard(false);
     if (drivers.length === 0 || driverDataChanged) {
       fetchDrivers()
       setDriverDataChanged(false)
@@ -159,32 +122,9 @@ export default function AdminDashboard() {
   }
 
   if (routesDataChanged) {
-    // console.log("Routes data changed, refetching routes...");
     fetchRoutes();
     setRoutesDataChanged(false);
   }
-
-
-  const getUnassignedBus = async () => {
-    // this function is for getting unassigned bus (whihch is not assigned to any route)
-    if (buses.length === 0) {
-      // if not yet fetched so fetch it
-      console.log("Fetching buses for unassigned bus calculation");
-      fetchBuses();
-    }
-    console.log("Calculating unassigned buses...");
-    console.log("All Buses:", buses);
-    console.log("Assigned Bus:", assignedBus);
-    buses.forEach((bus) => {
-      // those bus jinka bus no assigned bus array me nhi he
-      if (!assignedBus.includes(bus.busNo)) {
-        setUnAssignedBus([bus.busNo, ...unAssignedBus]);
-      }
-    }
-    )
-    return unAssignedBus;
-  }
-
 
 
 
@@ -194,8 +134,6 @@ export default function AdminDashboard() {
     routes,
     ['routeNo', 'busNo', 'stops']
   )
-
-
 
   const { filteredItems: filteredBuses } = useSearch(
     searchQuery,
@@ -224,7 +162,7 @@ export default function AdminDashboard() {
             <li className="relative px-6 py-3">
               <span className="absolute inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg" aria-hidden="true"></span>
               <button onClick={handleManageRoutes} className={`inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 cursor-pointer 
-                       ${(showBusDashboard || showDriverDashboard)
+                       ${!showRouteDashboard
                   ? "text-gray-400 dark:text-gray-500"  // lighter when true
                   : "text-gray-800 hover:text-gray-800 dark:text-gray-100 dark:hover:text-gray-200"}`} href="#">
                 <svg className="w-5 h-5" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
@@ -355,7 +293,7 @@ export default function AdminDashboard() {
                 )}
               </li>
             </ul>
-            
+
           </div>
         </header>
 
@@ -380,13 +318,16 @@ export default function AdminDashboard() {
             {showRouteForm && (
               <RouteForm
                 onClose={() => setShowRouteForm(false)}
-              // onAddRoute={() => setRoutesDataChanged(true)}
+                setRoutesDataChanged={setRoutesDataChanged}
+                unassignedBus={unAssignedBus}
+                setBusDataChanged={setBusDataChanged}
               />
             )}
             {showBusForm && (
               <BusForm
                 onClose={() => setShowBusForm(false)}
                 setBusDataChanged={setBusDataChanged}
+                setRoutesDataChanged={setRoutesDataChanged}
               />
             )}
             {showDriverForm && (
@@ -409,40 +350,40 @@ export default function AdminDashboard() {
                   <BusDashboard filteredBuses={filteredBuses} setBusDataChanged={setBusDataChanged} />
                 </>
               )
-            }{
-              showDriverDashboard &&
-              (
+            }
+            {
+              showDriverDashboard && (
                 <>
                   <StagesItem
                     items={[
                       { heading: "Total Driver", value: drivers.length, icon: "users", color: "orange" },
-                      { heading: "Active Driver", value: assignedBus, icon: "wallet", color: "green" },
-                      { heading: "Inactive Driver", value: unAssignedBus, icon: "cart", color: "blue" },
-                      { heading: "Maintenance", value: 69, icon: "chat", color: "teal" },
+                      { heading: "Active Driver", value: 0, icon: "wallet", color: "green" },
+                      { heading: "Inactive Driver", value: 0, icon: "cart", color: "blue" },
+                      { heading: "Maintenance", value: 0, icon: "chat", color: "teal" },
                     ]}
                   />
 
                   <DriverDashboard filteredDrivers={filteredDrivers} setDriverDataChanged={setDriverDataChanged} />
                 </>
               )
-            }{
-              showRouteDashboard &&
-              (
+            }
+            {
+              showRouteDashboard && (
                 <>
                   <StagesItem
                     items={[
-                      { heading: "Total Routes", value: buses.length, icon: "users", color: "orange" },
+                      { heading: "Total Routes", value: routes.length, icon: "users", color: "orange" },
                       { heading: "Assigned Buses", value: assignedBusCount, icon: "wallet", color: "green" },
-                      { heading: "UnAssigned Buses", value: unAssignedBusCount, icon: "cart", color: "blue" },
+                      { heading: "UnAssigned Buses", value: unAssignedBus.length, icon: "cart", color: "blue" },
                       { heading: "Let's do", value: 69, icon: "chat", color: "teal" },
                     ]}
                   />
                   <RoutesDashboard
                     filteredRoutes={filteredRoutes}
                     busData={buses}
-                    getUnassignedBus={getUnassignedBus}
+                    unassignedBus={unAssignedBus}
                     setRoutesDataChanged={setRoutesDataChanged}
-                  //  setRoutesDataChanged={setRoutesDataChanged} 
+                    setBusDataChanged={setBusDataChanged}
                   />
                 </>
               )

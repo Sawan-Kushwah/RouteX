@@ -3,8 +3,8 @@ import SuccessModal from '../components/SuccessModal'
 import axios from 'axios'
 import server from '../utils/backendServer'
 
-export default function BusForm({ onClose, setBusDataChanged }) {
-    const [busNo, setBusNo] = useState(0)
+export default function BusForm({ onClose, setBusDataChanged, setRoutesDataChanged }) {
+    const [busNo, setBusNo] = useState()
     const [numberPlate, setNumberPlate] = useState('')
     const [status, setStatus] = useState('unassigned')
     const [showSuccess, setShowSuccess] = useState(false)
@@ -22,7 +22,6 @@ export default function BusForm({ onClose, setBusDataChanged }) {
             numberPlate: numberPlate.trim().toLowerCase(),
             status: status.toLowerCase()
         })
-        // console.log(response)
         if (response.status === 200) {
             setAddedBus(response.data.bus)
             setShowSuccess(true)
@@ -30,6 +29,7 @@ export default function BusForm({ onClose, setBusDataChanged }) {
             setNumberPlate('')
             setStatus("unassigned")
             setBusDataChanged(true);
+            setRoutesDataChanged(true)
         } else {
             alert('Failed to add bus. Please try again.')
             return
@@ -78,7 +78,6 @@ export default function BusForm({ onClose, setBusDataChanged }) {
                                 onChange={(e) => setStatus(e.target.value)}
                                 className="w-full mt-1 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
                             >
-                                <option>assigned</option>
                                 <option>unassigned</option>
                                 <option>maintenance</option>
                             </select>

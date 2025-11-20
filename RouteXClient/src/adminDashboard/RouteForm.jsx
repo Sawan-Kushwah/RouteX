@@ -1,10 +1,13 @@
 import axios from 'axios';
 import React, { useState } from 'react'
 import SuccessModal from '../components/SuccessModal';
-export default function RouteForm({ onClose, onAddRoute }) {
+import server from '../utils/backendServer';
+export default function RouteForm({ onClose, setRoutesDataChanged, unassignedBus = [], setBusDataChanged }) {
     const [routeName, setRouteNumber] = useState('')
     const [stops, setStops] = useState([])
     const [stopInput, setStopInput] = useState('')
+    const [selectedBusId, setSelectedBusId] = useState(null)
+    const [selectedBusNo, setSelectedBusNo] = useState(null)
     const [showSuccess, setShowSuccess] = useState(false);
     const [addedRoute, setAddedRoute] = useState([]);
 
@@ -31,24 +34,26 @@ export default function RouteForm({ onClose, onAddRoute }) {
         try {
             if (routeName.trim() && stops.length > 0) {
 
-                const response = await axios.post('http://localhost:3000/routes/addRoute', {
+                const response = await axios.post(`${server}/routes/addRoute`, {
                     routeNo: routeName,
                     stops: stops,
-                    busNo: -1,
-                    busId: null
+                    busNo: selectedBusNo !== null ? selectedBusNo : -1,
+                    busId: selectedBusId !== null ? selectedBusId : null
                 });
-                // console.log("Response from adding route:", response);
-                // console.log("Response status", response.status);
+                console.log(response);
 
                 if (response.status == 201 || response.status == 200) {
                     setAddedRoute(response.data.route);
-                    onAddRoute(true);
-                    // console.log("Route added:", response.data.route);
+                    setRoutesDataChanged(true);
+                    if (selectedBusId) {
+                        setBusDataChanged(true);
+                    }
                     setShowSuccess(true);
-                    // onAddRoute({ routeNo: routeName, stops: stops });
                     setRouteNumber('')
                     setStops([])
                     setStopInput('')
+                    setSelectedBusId(null)
+                    setSelectedBusNo(null)
                 }
             } else {
                 alert('Please enter a route name and at least one stop')
@@ -126,6 +131,40 @@ export default function RouteForm({ onClose, onAddRoute }) {
                                 </div>
                             </div>
                         )}
+
+                        {/* Bus Selection */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Assign Bus (Optional)
+                            </label>
+                            <select
+                                value={selectedBusId || ''}
+                                onChange={(e) => {
+                                    if (e.target.value === '') {
+                                        setSelectedBusId(null);
+                                        setSelectedBusNo(null);
+                                    } else {
+                                        const busObj = unassignedBus.find(b => b._id === e.target.value);
+                                        if (busObj) {
+                                            setSelectedBusId(busObj._id);
+                                            setSelectedBusNo(busObj.busNo);
+                                        }
+                                    }
+                                }}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            >
+                                <option value="">-- No Bus (Unassigned) --</option>
+                                {unassignedBus && unassignedBus.length > 0 ? (
+                                    unassignedBus.map(bus => (
+                                        <option key={bus._id} value={bus._id}>
+                                            BUS {bus.busNo}
+                                        </option>
+                                    ))
+                                ) : (
+                                    <option disabled>No unassigned buses available</option>
+                                )}
+                            </select>
+                        </div>
 
                         {/* Submit Button */}
                         <div className="flex gap-3 pt-4">
