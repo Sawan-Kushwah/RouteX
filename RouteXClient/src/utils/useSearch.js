@@ -1,4 +1,3 @@
-import { useState } from 'react'
 
 /**
  * Custom hook for reusable search functionality

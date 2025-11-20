@@ -4,9 +4,9 @@ import axios from 'axios'
 import server from '../utils/backendServer'
 
 export default function BusForm({ onClose, setBusDataChanged }) {
-    const [busNo, setBusNo] = useState('')
+    const [busNo, setBusNo] = useState(0)
     const [numberPlate, setNumberPlate] = useState('')
-    const [status, setStatus] = useState('Active')
+    const [status, setStatus] = useState('unassigned')
     const [showSuccess, setShowSuccess] = useState(false)
     const [addedBus, setAddedBus] = useState(null)
 
@@ -16,19 +16,19 @@ export default function BusForm({ onClose, setBusDataChanged }) {
             alert('Please enter bus number and number plate')
             return
         }
-        console.log('submitting bus:', { busNo, numberPlate, status })
+        // console.log('submitting bus:', { busNo, numberPlate, status })
         const response = await axios.post(`${server}/bus/addBus`, {
             busNo: busNo,
             numberPlate: numberPlate.trim().toLowerCase(),
             status: status.toLowerCase()
         })
-        console.log(response)
+        // console.log(response)
         if (response.status === 200) {
             setAddedBus(response.data.bus)
             setShowSuccess(true)
             setBusNo('')
             setNumberPlate('')
-            setStatus('Active')
+            setStatus("unassigned")
             setBusDataChanged(true);
         } else {
             alert('Failed to add bus. Please try again.')
@@ -78,9 +78,9 @@ export default function BusForm({ onClose, setBusDataChanged }) {
                                 onChange={(e) => setStatus(e.target.value)}
                                 className="w-full mt-1 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
                             >
-                                <option>Active</option>
-                                <option>Inactive</option>
-                                <option>Maintenance</option>
+                                <option>assigned</option>
+                                <option>unassigned</option>
+                                <option>maintenance</option>
                             </select>
                         </div>
 
@@ -92,14 +92,14 @@ export default function BusForm({ onClose, setBusDataChanged }) {
                 </div>
             </div>
 
-            <SuccessModal 
-              visible={showSuccess} 
-              heading="Bus Added Successfully!" 
-              details={addedBus} 
-              onClose={handleSuccessClose}
-              buttonText="Done"
-              autoClose={true}
-              autoCloseDelay={5000}
+            <SuccessModal
+                visible={showSuccess}
+                heading="Bus Added Successfully!"
+                details={addedBus}
+                onClose={handleSuccessClose}
+                buttonText="Done"
+                autoClose={true}
+                autoCloseDelay={5000}
             />
         </>
     )

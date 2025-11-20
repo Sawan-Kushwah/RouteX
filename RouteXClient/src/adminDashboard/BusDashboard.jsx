@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react'
-import BusForm from './BusForm'
+import { useState } from 'react'
 import axios from 'axios'
 import server from '../utils/backendServer';
 import SuccessModal from '../components/SuccessModal';
@@ -44,7 +43,7 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged }) {
     const handleSave = async (busId) => {
         try {
             const response = await axios.put(`${server}/bus/updateBus/${busId}`, {
-                busNo: editData.busNo.toLowerCase(),
+                busNo: editData.busNo,
                 numberPlate: editData.numberPlate.toLowerCase(),
                 status: editData.status.toLowerCase()
             })
@@ -133,15 +132,15 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged }) {
                                                 onChange={(e) => handleInputChange('status', e.target.value)}
                                                 className="px-2 py-1 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                                             >
-                                                <option value="active">Active</option>
-                                                <option value="inactive">Inactive</option>
-                                                <option value="maintenance">Maintenance</option>
+                                                <option value="assigned">assigned</option>
+                                                <option value="unassigned">unassigned</option>
+                                                <option value="maintenance">maintenance</option>
                                             </select>
                                         ) : (
                                             <span
-                                                className={`px-2 py-1 font-semibold leading-tight rounded-full ${bus.status === 'active'
+                                                className={`px-2 py-1 font-semibold leading-tight rounded-full ${bus.status === 'assigned'
                                                     ? ('text-green-700 bg-green-100 dark:bg-green-700 dark:text-green-100')
-                                                    : (bus.status === 'inactive' ? 'text-red-700 bg-red-100 dark:bg-red-700 dark:text-red-100' : 'text-yellow-700 bg-yellow-100 dark:bg-yellow-700 dark:text-yellow-100')
+                                                    : (bus.status === 'unassigned' ? 'text-red-700 bg-red-100 dark:bg-red-700 dark:text-red-100' : 'text-yellow-700 bg-yellow-100 dark:bg-yellow-700 dark:text-yellow-100')
                                                     }`}
                                             >
                                                 {bus.status}
