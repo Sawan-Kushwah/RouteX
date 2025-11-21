@@ -41,13 +41,29 @@ export default function SuccessModal({
                         <div className="text-left w-full bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-2">
                             {Object.entries(details).map(([key, value]) => {
                                 if (key == '_id' || key == '__v' || key == 'updatedAt' || key == 'password') return null;
+                                
+                                // Handle nested objects and arrays
+                                let displayValue = '-';
+                                
+                                if (Array.isArray(value)) {
+                                    displayValue = value.join(', ');
+                                } else if (value && typeof value === 'object') {
+                                    // For objects like bus: {_id, busNo}
+                                    if (value.busNo) {
+                                        displayValue = `BUS ${value.busNo}`;
+                                    } else {
+                                        displayValue = JSON.stringify(value);
+                                    }
+                                } else if (value) {
+                                    displayValue = value.toString();
+                                }
+                                
                                 return (
-
                                     <div key={key} className="flex justify-between items-start gap-2">
                                         <span className="font-semibold text-gray-700 dark:text-gray-300 capitalize">
                                             {key.replace(/([A-Z])/g, ' $1').trim()}:
                                         </span>
-                                        <span className="text-gray-600 dark:text-gray-400 text-right">{value || '-'}</span>
+                                        <span className="text-gray-600 dark:text-gray-400 text-right">{displayValue}</span>
                                     </div>
                                 )
                             })}

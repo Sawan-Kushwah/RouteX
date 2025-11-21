@@ -3,6 +3,7 @@ import controllerBusRoute from '../controller/busRouteController.js';
 const router = Router();
 router.get('/getAllRoutes', controllerBusRoute.getAllRoutes);
 router.get('/getAllAssignedRoutes', controllerBusRoute.getAllAssignedRoutes);
+router.get('/searchRoutes', controllerBusRoute.searchRoutes);
 router.post('/addRoute', controllerBusRoute.addRoute);
 router.patch('/updateRoute/:id', controllerBusRoute.updateRoute);
 router.patch('/updateRouteAndBus/:id', controllerBusRoute.updateRouteAndBus);

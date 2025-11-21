@@ -169,6 +169,37 @@ const getRouteById = async (req, res) => {
         res.status(500).json({ message: "Error fetching route", error: error.message });
     }
 }
+
+const searchRoutes = async (req, res) => {
+    try {
+        const { q } = req.query;
+        
+        if (!q || q.trim() === '') {
+            return res.status(200).json({ message: "Empty search query", routes: [] });
+        }
+
+        const searchQuery = q.trim();
+        const searchRegex = new RegExp(searchQuery, 'i');
+        
+        // Search in route number, stops, or bus number
+        // give search result as select stoops busno initially bs 5 dena baki search ke according 
+        const routes = await BusRoute.find({
+            $or: [
+                { routeNo: searchRegex },
+                { stops: { $in: [searchRegex] } }
+            ]
+        }).populate({ path: "bus", select: "busNo" }).limit(10);
+
+        res.status(200).json({ 
+            message: "Search completed successfully", 
+            routes: routes 
+        });
+    } catch (error) {
+        console.error("Error searching routes:", error);
+        res.status(500).json({ message: "Error searching routes", error: error.message });
+    }
+}
+
 export default {
     getAllRoutes,
     addRoute,
@@ -176,5 +207,6 @@ export default {
     deleteRoute,
     getRouteById,
     updateRouteAndBus,
-    getAllAssignedRoutes
+    getAllAssignedRoutes,
+    searchRoutes
 };
