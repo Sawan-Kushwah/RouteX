@@ -1,11 +1,13 @@
 import axios from 'axios';
 import { useState } from 'react';
 import server from '../utils/backendServer';
+import formatUpdateTime from '../utils/formatUpdateTime';
 
 export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, unassignedBus, setBusDataChanged }) {
     const [editingId, setEditingId] = useState(null);
     const [editData, setEditData] = useState({});
     const [expandedRouteId, setExpandedRouteId] = useState(null);
+
 
     // Edit button click
     const handleEditClick = (route) => {
@@ -13,8 +15,8 @@ export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, 
         setEditData({
             routeNo: route.routeNo,
             stops: Array.isArray(route.stops) ? [...route.stops] : [],
-            busNo: route.busNo === null ? -1 : route.busNo,
-            busId: route.busId != null ? route.busId : null
+            busNo: route.bus?.busNo === undefined || route.bus === null ? -1 : route.bus.busNo,
+            busId: route.bus != null ? route.bus._id : null
         });
     };
 
@@ -38,11 +40,10 @@ export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, 
         try {
             console.log("edit kr le ", editData, originalRoute.busId)
             const payload = {
-                originalBusId: originalRoute.busId || null,
+                originalBusId: originalRoute.bus?._id || null,
                 routeNo: editData.routeNo,
                 stops: editData.stops || [],
-                busNo: editData.busNo || -1,
-                busId: editData.busId || null,
+                bus: editData.busId || null,
             };
 
             const response = await axios.patch(
@@ -51,7 +52,7 @@ export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, 
             );
 
             if (response.status === 200) {
-                if (originalRoute.busId !== editData.busId) {
+                if ((originalRoute.bus?._id || null) !== editData.busId) {
                     setBusDataChanged(true);
                     console.log("bus data ho gaya")
                 }
@@ -74,15 +75,20 @@ export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, 
     // Delete route
     const handleDelete = async (route) => {
         try {
-            const response = await axios.delete(`${server}/routes/deleteRoute/${route._id}`, { busId: route.busId });
+            const response = await axios.delete(`${server}/routes/deleteRoute/${route._id}`, { data: { busId: route.bus?._id || null } });
             if (response.status === 200) {
                 setRoutesDataChanged(true);
+                if (route.bus !== null) {
+                    setBusDataChanged(true);
+                }
             }
         } catch (error) {
             alert('Failed to delete route.');
             console.error(error);
         }
     };
+
+
 
     return (
         <div className="w-full overflow-visible rounded-lg shadow-xs">
@@ -93,6 +99,7 @@ export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, 
                             <th className="px-4 py-3">Route Number</th>
                             <th className="px-4 py-3">Stops</th>
                             <th className="px-4 py-3">Assigned Bus</th>
+                            <th className="px-4 py-3">Last Update</th>
                             <th className="px-4 py-3">Actions</th>
                         </tr>
                     </thead>
@@ -165,6 +172,9 @@ export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, 
                                                     ))}
                                                     <option value={-1}>Unassigned</option>
                                                 </select>
+                                            </td>
+                                            <td className="px-4 py-3 text-sm">
+                                                {formatUpdateTime(route.updatedAt)}
                                             </td>
                                             <td className="px-4 py-3 text-sm">
                                                 <div className="flex items-center gap-3">
@@ -240,8 +250,11 @@ export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, 
                                             </td>
                                             <td className="px-4 py-3 text-sm">
                                                 <div className="inline-flex items-center justify-center px-3 py-1 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 font-semibold shadow-sm">
-                                                    {route.busNo === -1 ? 'Unassigned' : `BUS ${route.busNo}`}
+                                                    {route.bus === null ? 'Unassigned' : `BUS ${route.bus.busNo}`}
                                                 </div>
+                                            </td>
+                                            <td className="px-4 py-3 text-sm">
+                                                {formatUpdateTime(route.updatedAt)}
                                             </td>
                                             <td className="px-4 py-3 text-sm">
                                                 <div className="flex items-center gap-3">
@@ -265,7 +278,7 @@ export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, 
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="4" className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                                <td colSpan="5" className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                                     No routes added yet. Click "Add a new route" to get started.
                                 </td>
                             </tr>

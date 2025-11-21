@@ -37,8 +37,7 @@ export default function RouteForm({ onClose, setRoutesDataChanged, unassignedBus
                 const response = await axios.post(`${server}/routes/addRoute`, {
                     routeNo: routeName,
                     stops: stops,
-                    busNo: selectedBusNo !== null ? selectedBusNo : -1,
-                    busId: selectedBusId !== null ? selectedBusId : null
+                    bus: selectedBusId !== null ? selectedBusId : null
                 });
                 console.log(response);
 

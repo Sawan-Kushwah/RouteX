@@ -2,6 +2,7 @@ import { useState } from 'react'
 import axios from 'axios'
 import server from '../utils/backendServer';
 import SuccessModal from '../components/SuccessModal';
+import formatUpdateTime from '../utils/formatUpdateTime';
 
 export default function BusDashboard({ filteredBuses, setBusDataChanged }) {
     const [showSuccess, setShowSuccess] = useState(false)
@@ -79,6 +80,8 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged }) {
         setUpdatedBus(null)
     }
 
+   
+
     return (
         <div>
             <div className="w-full overflow-hidden rounded-lg shadow-xs">
@@ -122,13 +125,7 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged }) {
                                         )}
                                     </td>
                                     <td className="px-4 py-3 text-sm">
-                                        {bus.updatedAt
-                                            ? new Date(bus.updatedAt).toLocaleDateString("en-GB", {
-                                                day: "2-digit",
-                                                month: "short",
-                                                year: "numeric"
-                                            })
-                                            : "-"}
+                                        {formatUpdateTime(bus.updatedAt)}
                                     </td>
                                     <td className="px-4 py-3 text-xs">
                                         {editingId === bus._id ? (

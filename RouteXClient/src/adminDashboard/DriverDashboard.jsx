@@ -2,6 +2,7 @@ import { useState } from 'react'
 import axios from 'axios'
 import server from '../utils/backendServer'
 import SuccessModal from '../components/SuccessModal'
+import formatUpdateTime from '../utils/formatUpdateTime'
 
 
 export default function DriverDashboard({ filteredDrivers, setDriverDataChanged }) {
@@ -60,8 +61,7 @@ export default function DriverDashboard({ filteredDrivers, setDriverDataChanged 
         setEditData({})
     }
 
-
-
+ 
     return (
         <div className="h-full overflow-y-auto bg-gray-900">
             <div className="container mx-auto grid">
@@ -73,6 +73,7 @@ export default function DriverDashboard({ filteredDrivers, setDriverDataChanged 
                                     <th className="px-4 py-3">First Name</th>
                                     <th className="px-4 py-3">Last Name</th>
                                     <th className="px-4 py-3">Email</th>
+                                    <th className="px-4 py-3">Last Update</th>
                                     <th className="px-4 py-3">Actions</th>
                                 </tr>
                             </thead>
@@ -117,6 +118,10 @@ export default function DriverDashboard({ filteredDrivers, setDriverDataChanged 
                                                 ) : (
                                                     driver.email
                                                 )}
+                                            </td>
+
+                                            <td className="px-4 py-3 text-sm">
+                                                {formatUpdateTime(driver.updatedAt)}
                                             </td>
 
                                             <td className="px-4 py-3 text-sm">

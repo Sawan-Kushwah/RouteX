@@ -3,7 +3,7 @@ import Bus from "../models/busModel.js";
 
 const getAllRoutes = async (req, res) => {
     try {
-        const routes = await BusRoute.find({});
+        const routes = await BusRoute.find({}).populate({ path: "bus", select: "busNo" })
         const unassignedBus = await Bus.find({ status: 'unassigned' }).select("_id busNo");
         if (!routes) {
             return res.status(500).json({ message: "Error fetching routes", error: err.message });
@@ -16,7 +16,7 @@ const getAllRoutes = async (req, res) => {
 }
 const getAllAssignedRoutes = async (req, res) => {
     try {
-        const routes = await BusRoute.find({ busId: { $ne: null } });
+        const routes = await BusRoute.find({ bus: { $ne: null } }).populate({ path: "bus", select: "busNo" });
         if (!routes) {
             return res.status(500).json({ message: "Error fetching routes", error: err.message });
         } else {
@@ -30,20 +30,21 @@ const getAllAssignedRoutes = async (req, res) => {
 
 const addRoute = async (req, res) => {
     try {
-        const { routeNo, busId, busNo, stops } = req.body;
-        const newRoute = new BusRoute({ routeNo, busId, busNo, stops });
+        const { routeNo, bus, stops } = req.body;
+        const newRoute = new BusRoute({ routeNo, bus, stops });
         const savedRoute = await newRoute.save();
+        const populatedRoute = await BusRoute.findById(savedRoute._id).populate({ path: "bus", select: "busNo" });
 
         // If a bus is assigned, update its status to assigned
-        if (busId) {
+        if (bus) {
             await Bus.findByIdAndUpdate(
-                busId,
+                bus,
                 { status: "assigned" }
             );
         }
 
-        console.log("Saved Route:", savedRoute);
-        res.status(200).json({ message: "Route added successfully", route: savedRoute });
+        console.log("Saved Route:", populatedRoute);
+        res.status(200).json({ message: "Route added successfully", route: populatedRoute });
     }
     catch (error) {
         console.error("Error adding route:", error);
@@ -54,7 +55,6 @@ const updateRoute = async (req, res) => {
     try {
         const routeId = req.params.id;
         const updates = req.body;
-        updates.busNo = updates.busNo === 'Unassigned' ? -1 : Number(updates.busNo);
         updates.routeNo = Number(updates.routeNo);
 
         const updatedRoute = await BusRoute.findByIdAndUpdate(routeId, updates, { new: true });
@@ -76,12 +76,11 @@ export const updateRouteAndBus = async (req, res) => {
             originalBusId,
             routeNo,
             stops,
-            busNo,
-            busId
+            bus
         } = req.body;
 
         const oldBusId = originalBusId || null;
-        const newBusId = busId || null;
+        const newBusId = bus || null;
 
         const busChanged = String(oldBusId) !== String(newBusId);
 
@@ -111,11 +110,10 @@ export const updateRouteAndBus = async (req, res) => {
             {
                 routeNo: Number(routeNo),
                 stops: stops || [],
-                busNo: busNo ? Number(busNo) : null,
-                busId: newBusId
+                bus: newBusId
             },
             { new: true }
-        );
+        ).populate({ path: "bus", select: "busNo" });
 
         if (!updatedRoute) {
             return res.status(404).json({
@@ -138,14 +136,13 @@ export const updateRouteAndBus = async (req, res) => {
 };
 
 
-
 const deleteRoute = async (req, res) => {
     try {
         const routeId = req.params.id;
         const { busId } = req.body;
 
         if (busId !== null) {
-            Bus.findByIdAndUpdate(busId, { status: 'unassigned' })
+            await Bus.findByIdAndUpdate(busId, { status: 'unassigned' })
         }
 
         const deletedRoute = await BusRoute.findByIdAndDelete(routeId);
@@ -162,7 +159,7 @@ const getRouteById = async (req, res) => {
     try {
         const routeId = req.params.id;
         console.log("Route ID:", routeId);
-        const route = await BusRoute.findById(routeId);
+        const route = await BusRoute.findById(routeId).populate({ path: "bus", select: "busNo" });
         if (!route) {
             return res.status(404).json({ message: "Route not found" });
         }
