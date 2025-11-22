@@ -3,7 +3,7 @@ import { useState } from 'react';
 import server from '../utils/backendServer';
 import formatUpdateTime from '../utils/formatUpdateTime';
 
-export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, unassignedBus, setBusDataChanged }) {
+export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, availableBuses, setBusDataChanged }) {
     const [editingId, setEditingId] = useState(null);
     const [editData, setEditData] = useState({});
     const [expandedRouteId, setExpandedRouteId] = useState(null);
@@ -54,7 +54,6 @@ export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, 
             if (response.status === 200) {
                 if ((originalRoute.bus?._id || null) !== editData.busId) {
                     setBusDataChanged(true);
-                    console.log("bus data ho gaya")
                 }
                 setEditingId(null);
                 setEditData({});
@@ -151,11 +150,11 @@ export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, 
                                                     value={editData.busNo}
                                                     onChange={e => {
                                                         const val = e.target.value;
-                                                        if (val === 'Unassigned') {
+                                                        if (val === 'inactive') {
                                                             handleInputChange('busNo', -1);
                                                             handleInputChange('busId', null);
                                                         } else {
-                                                            const busObj = unassignedBus.find(b => String(b.busNo) === val || b.busNo === val);
+                                                            const busObj = availableBuses.find(b => String(b.busNo) === val || b.busNo === val);
                                                             if (busObj) {
                                                                 handleInputChange('busNo', busObj.busNo);
                                                                 handleInputChange('busId', busObj._id);
@@ -167,7 +166,7 @@ export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, 
                                                     }}
                                                 >
                                                     <option value="">Select Bus</option>
-                                                    {unassignedBus.map(bus => (
+                                                    {availableBuses.map(bus => (
                                                         <option key={bus.busNo} value={bus.busNo}>BUS {bus.busNo}</option>
                                                     ))}
                                                     <option value={-1}>Unassigned</option>

@@ -2,7 +2,7 @@ import axios from 'axios';
 import React, { useState } from 'react'
 import SuccessModal from '../components/SuccessModal';
 import server from '../utils/backendServer';
-export default function RouteForm({ onClose, setRoutesDataChanged, unassignedBus = [], setBusDataChanged }) {
+export default function RouteForm({ onClose, setRoutesDataChanged, availableBuses = [], setBusDataChanged }) {
     const [routeName, setRouteNumber] = useState('')
     const [stops, setStops] = useState([])
     const [stopInput, setStopInput] = useState('')
@@ -143,7 +143,7 @@ export default function RouteForm({ onClose, setRoutesDataChanged, unassignedBus
                                         setSelectedBusId(null);
                                         setSelectedBusNo(null);
                                     } else {
-                                        const busObj = unassignedBus.find(b => b._id === e.target.value);
+                                        const busObj = availableBuses.find(b => b._id === e.target.value);
                                         if (busObj) {
                                             setSelectedBusId(busObj._id);
                                             setSelectedBusNo(busObj.busNo);
@@ -152,15 +152,15 @@ export default function RouteForm({ onClose, setRoutesDataChanged, unassignedBus
                                 }}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
                             >
-                                <option value="">-- No Bus (Unassigned) --</option>
-                                {unassignedBus && unassignedBus.length > 0 ? (
-                                    unassignedBus.map(bus => (
+                                <option value="">-- No Bus Available --</option>
+                                {availableBuses && availableBuses.length > 0 ? (
+                                    availableBuses.map(bus => (
                                         <option key={bus._id} value={bus._id}>
                                             BUS {bus.busNo}
                                         </option>
                                     ))
                                 ) : (
-                                    <option disabled>No unassigned buses available</option>
+                                    <option disabled>No bus available</option>
                                 )}
                             </select>
                         </div>

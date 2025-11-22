@@ -23,7 +23,7 @@ export default function SuccessModal({
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-8 w-full max-w-md text-center transform transition-all duration-300 scale-100">
                 <div className="flex flex-col items-center gap-6">
                     {/* Green Tick Circle */}
-                    <div className="w-20 h-20 flex items-center justify-center rounded-full bg-gradient-to-br from-green-100 to-green-50 dark:from-green-900 dark:to-green-800 shadow-lg">
+                    <div className="w-20 h-20 flex items-center justify-center rounded-full bg-linear-to-br from-green-100 to-green-50 dark:from-green-900 dark:to-green-800 shadow-lg">
                         <svg className="w-10 h-10 text-green-600 dark:text-green-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
@@ -31,7 +31,7 @@ export default function SuccessModal({
 
                     {/* Heading */}
                     <div>
-                        <h3 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-green-500 bg-clip-text text-transparent dark:from-green-400 dark:to-green-300">
+                        <h3 className="text-2xl font-bold bg-linear-to-r from-green-600 to-green-500 bg-clip-text text-transparent dark:from-green-400 dark:to-green-300">
                             {heading}
                         </h3>
                     </div>
@@ -73,7 +73,7 @@ export default function SuccessModal({
                     {/* Button */}
                     <button
                         onClick={onClose}
-                        className="mt-6 px-6 py-3 w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 cursor-pointer dark:from-green-600 dark:to-green-700"
+                        className="mt-6 px-6 py-3 w-full bg-linear-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 cursor-pointer dark:from-green-600 dark:to-green-700"
                     >
                         {buttonText}
                     </button>
