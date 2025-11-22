@@ -3,7 +3,7 @@ import './App.css'
 import Home from './components/Home.jsx'
 import MapComponent from './components/MapComponent.jsx'
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import SelectBus from './components/selectBus.jsx';
+import SelectBus from './components/SelectBus.jsx';
 import AdminDashboard from './adminDashboard/AdminDashboard.jsx'
 import ProtectedRoute from './components/ProtectedRoute'
 
