@@ -22,10 +22,11 @@ const login = async (req, res) => {
 
       res.cookie("authToken", token, {
         httpOnly: true,
-        secure: false,
-        sameSite: "Lax",
+        secure: true,       // because Render is HTTPS
+        sameSite: "None",   // because frontend & backend are different origins
         maxAge: 24 * 60 * 60 * 1000
       });
+
 
       return res.status(200).json({
         message: 'Login successful',
@@ -85,12 +86,14 @@ const verifyToken = (req, res) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log(token, decoded)
     res.cookie("authToken", token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "Lax",
+      secure: true,       // because Render is HTTPS
+      sameSite: "None",   // because frontend & backend are different origins
       maxAge: 24 * 60 * 60 * 1000
     });
+
 
     return res.status(200).json({
       valid: true,

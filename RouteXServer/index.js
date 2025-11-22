@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import connectDB from "./db/connectDB.js";
 dotenv.config();
 import cors from 'cors';
-
+const port = process.env.PORT || 3000;
 
 import busRoutes from './routes/busRoutes.js';
 import bus from './routes/bus.js';
@@ -79,6 +79,6 @@ io.on("connection", (socket) => {
     })
 });
 
-httpServer.listen(process.env.PORT, () => {
-    console.log(`Server is running on http://localhost:${process.env.PORT}`);
+httpServer.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
 });
