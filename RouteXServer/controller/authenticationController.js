@@ -110,7 +110,7 @@ const verifyToken = (req, res) => {
 // LOGOUT
 const logout = (req, res) => {
   try {
-    res.cookie("authToken", token, {
+    res.cookie("authToken", "", {
       httpOnly: true,
       secure: true,       // because Render is HTTPS
       sameSite: "None",   // because frontend & backend are different origins
@@ -119,7 +119,7 @@ const logout = (req, res) => {
     return res.status(200).json({ message: "Logged out" });
 
   } catch (error) {
-    return res.status(401).json({ valid: false, message: "Invalid token" });
+    return res.status(500).json({ message: "Error during logout" });
   }
 };
 
