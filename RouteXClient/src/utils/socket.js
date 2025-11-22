@@ -1,7 +1,8 @@
 // socket.js
 import { io } from "socket.io-client";
+import server from "./backendServer";
 
-const socket = io("http://localhost:3000", {
+const socket = io(`${server}`, {
   withCredentials: true,
   transports: ["websocket"],
 });
