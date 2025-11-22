@@ -114,7 +114,7 @@ const logout = (req, res) => {
       httpOnly: true,
       secure: true,       // because Render is HTTPS
       sameSite: "None",   // because frontend & backend are different origins
-      maxAge: 24 * 60 * 60 * 1000
+      expires: new Date(0)
     });
     return res.status(200).json({ message: "Logged out" });
 
