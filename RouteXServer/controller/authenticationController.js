@@ -56,8 +56,8 @@ const login = async (req, res) => {
 
     res.cookie("authToken", token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "None",
+      secure: true,       // because Render is HTTPS
+      sameSite: "None",   // because frontend & backend are different origins
       maxAge: 24 * 60 * 60 * 1000
     });
 
@@ -110,13 +110,12 @@ const verifyToken = (req, res) => {
 // LOGOUT
 const logout = (req, res) => {
   try {
-    res.cookie("authToken", "", {
+    res.cookie("authToken", token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "Lax",
-      expires: new Date(0)
+      secure: true,       // because Render is HTTPS
+      sameSite: "None",   // because frontend & backend are different origins
+      maxAge: 24 * 60 * 60 * 1000
     });
-
     return res.status(200).json({ message: "Logged out" });
 
   } catch (error) {
