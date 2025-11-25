@@ -120,7 +120,7 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged, setRout
                                                 className="w-full px-2 py-1 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                                             />
                                         ) : (
-                                            `BUS = 🚌${bus.busNo}`
+                                            `BUS = ${bus.busNo}`
                                         )}
                                     </td>
                                     <td className="px-4 py-3 text-sm">
