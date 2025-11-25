@@ -4,7 +4,7 @@ import BusRoute from "../models/busRouteModel.js";
 
 const getAllBuses = async (req, res) => {
     try {
-        const buses = await Bus.find({});
+        const buses = await Bus.find({}).sort({ busNo: 1 });
         let activeBusCount = 0;
         let inactiveBusCount = 0;
         let maintenanceBusCount = 0;
