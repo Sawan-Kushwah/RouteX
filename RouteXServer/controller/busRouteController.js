@@ -1,54 +1,64 @@
 import BusRoute from "../models/busRouteModel.js";
 import Bus from "../models/busModel.js";
+import mongoose from "mongoose";
 
 const getAllRoutes = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
     try {
         const routes = await BusRoute.find({}).populate({ path: "bus", select: "busNo" })
-        const unassignedBus = await Bus.find({ status: 'unassigned' }).select("_id busNo");
+        const inactiveBuses = await Bus.find({ status: 'inactive' }).select("_id busNo");
+        let routeHaveBus = 0;
+        routes.forEach((route) => {
+            if (route.bus) {
+                routeHaveBus++;
+            }
+        })
+
+        await session.commitTransaction();
         if (!routes) {
             return res.status(500).json({ message: "Error fetching routes", error: err.message });
         } else {
-            return res.status(200).json({ message: "Fetched all routes successfully", routes, unassignedBus });
+            return res.status(200).json({ message: "Fetched all routes successfully", routes, inactiveBuses, routeHaveBus });
         }
     } catch (error) {
+        await session.abortTransaction();
         res.status(500).json({ message: "Error fetching routes", error: error.message });
-    }
-}
-const getAllAssignedRoutes = async (req, res) => {
-    try {
-        const routes = await BusRoute.find({ bus: { $ne: null } }).populate({ path: "bus", select: "busNo" });
-        if (!routes) {
-            return res.status(500).json({ message: "Error fetching routes", error: err.message });
-        } else {
-            return res.status(200).json({ message: "Fetched all assigned routes successfully", routes });
-        }
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching routes", error: error.message });
+    } finally {
+        session.endSession();
     }
 }
 
 
 const addRoute = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
     try {
         const { routeNo, bus, stops } = req.body;
+        const existingRoute = await BusRoute.findOne({ routeNo });
+        if (existingRoute) {
+            await session.abortTransaction();
+            return res.status(400).json({ message: "Route no exits" });
+        }
         const newRoute = new BusRoute({ routeNo, bus, stops });
         const savedRoute = await newRoute.save();
         const populatedRoute = await BusRoute.findById(savedRoute._id).populate({ path: "bus", select: "busNo" });
 
-        // If a bus is assigned, update its status to assigned
+        // If a bus is assigned, update its status to active
         if (bus) {
             await Bus.findByIdAndUpdate(
                 bus,
-                { status: "assigned" }
+                { status: "active" }
             );
         }
-
-        console.log("Saved Route:", populatedRoute);
+        await session.commitTransaction();
         res.status(200).json({ message: "Route added successfully", route: populatedRoute });
     }
     catch (error) {
-        console.error("Error adding route:", error);
+        await session.abortTransaction();
         res.status(500).json({ message: "Error adding route", error: error.message });
+    } finally {
+        session.endSession();
     }
 }
 const updateRoute = async (req, res) => {
@@ -56,7 +66,6 @@ const updateRoute = async (req, res) => {
         const routeId = req.params.id;
         const updates = req.body;
         updates.routeNo = Number(updates.routeNo);
-
         const updatedRoute = await BusRoute.findByIdAndUpdate(routeId, updates, { new: true });
         if (!updatedRoute) {
             return res.status(404).json({ message: "Route not found" });
@@ -70,6 +79,8 @@ const updateRoute = async (req, res) => {
 }
 
 export const updateRouteAndBus = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
     try {
         const routeId = req.params.id;
         const {
@@ -91,7 +102,7 @@ export const updateRouteAndBus = async (req, res) => {
             if (oldBusId) {
                 await Bus.findByIdAndUpdate(
                     oldBusId,
-                    { status: "unassigned" }
+                    { status: "inactive" }
                 );
             }
 
@@ -99,7 +110,7 @@ export const updateRouteAndBus = async (req, res) => {
             if (newBusId) {
                 await Bus.findByIdAndUpdate(
                     newBusId,
-                    { status: "assigned" }
+                    { status: "active" }
                 );
             }
         }
@@ -116,49 +127,60 @@ export const updateRouteAndBus = async (req, res) => {
         ).populate({ path: "bus", select: "busNo" });
 
         if (!updatedRoute) {
+            await session.abortTransaction();
             return res.status(404).json({
                 message: "Route not found"
             });
         }
-
+        await session.commitTransaction();
         res.status(200).json({
             message: "Route updated successfully",
             route: updatedRoute
         });
 
     } catch (error) {
+        await session.abortTransaction();
         console.error("Error updating route:", error);
         res.status(500).json({
             message: "Error updating route",
             error: error.message
         });
+    } finally {
+        session.endSession();
     }
 };
 
 
 const deleteRoute = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
     try {
         const routeId = req.params.id;
         const { busId } = req.body;
 
         if (busId !== null) {
-            await Bus.findByIdAndUpdate(busId, { status: 'unassigned' })
+            await Bus.findByIdAndUpdate(busId, { status: 'inactive' })
         }
 
         const deletedRoute = await BusRoute.findByIdAndDelete(routeId);
         if (!deletedRoute) {
+            await session.abortTransaction();
             return res.status(404).json({ message: "Route not found" });
         }
+        await session.commitTransaction();
         res.status(200).json({ message: "Route deleted successfully", route: deletedRoute });
     }
     catch (error) {
+        await session.abortTransaction();
         res.status(500).json({ message: "Error deleting route", error: error.message });
+    } finally {
+        select.endSession();
     }
 }
+
 const getRouteById = async (req, res) => {
     try {
         const routeId = req.params.id;
-        console.log("Route ID:", routeId);
         const route = await BusRoute.findById(routeId).populate({ path: "bus", select: "busNo" });
         if (!route) {
             return res.status(404).json({ message: "Route not found" });
@@ -181,6 +203,7 @@ const searchRoutes = async (req, res) => {
         const routeFields = fields.filter(f => f != "busNo" && f != 'numberPlate' &&  f != 'status')
         const selectRouteField = routeFields.join(" ")
         
+
         if (!q || q.trim() === '') {
             return res.status(200).json({ message: "Empty search query", routes: [] });
         }
@@ -188,7 +211,7 @@ const searchRoutes = async (req, res) => {
         const searchQuery = q.trim();
         const routeNo = (!isNaN(searchQuery)) ? Number(searchQuery) : -1; 
         const searchRegex = new RegExp(searchQuery, 'i');
-        
+
         // Search in route number, stops, or bus number
         // give search result as select stops busno initially bs 5 dena baki search ke according 
         const routes = await BusRoute.find({
@@ -203,13 +226,29 @@ const searchRoutes = async (req, res) => {
 
         console.log("respons => ", routes)
 
-        res.status(200).json({ 
-            message: "Search completed successfully", 
-            routes: routes 
+        res.status(200).json({
+            message: "Search completed successfully",
+            routes: routes
         });
     } catch (error) {
         console.error("Error searching routes:", error);
         res.status(500).json({ message: "Error searching routes", error: error.message });
+    }
+}
+
+const getAllAssignedRoutes = async (req, res) => {
+    try {
+        const routes = await BusRoute.find({
+            bus: { $type: "objectId" }
+        }).populate({ path: "bus", select: "busNo" });
+
+        if (!routes) {
+            return res.status(404).json({ message: "Route not found" });
+        }
+        res.status(200).json({ message: "Fetched all assigned successfully", routes });
+    }
+    catch (error) {
+        res.status(500).json({ message: "Error fetching route", error: error.message });
     }
 }
 
@@ -219,7 +258,7 @@ export default {
     updateRoute,
     deleteRoute,
     getRouteById,
-    updateRouteAndBus,
     getAllAssignedRoutes,
+    updateRouteAndBus,
     searchRoutes
 };

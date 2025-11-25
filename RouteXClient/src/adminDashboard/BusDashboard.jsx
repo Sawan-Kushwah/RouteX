@@ -4,7 +4,7 @@ import server from '../utils/backendServer';
 import SuccessModal from '../components/SuccessModal';
 import formatUpdateTime from '../utils/formatUpdateTime';
 
-export default function BusDashboard({ filteredBuses, setBusDataChanged }) {
+export default function BusDashboard({ filteredBuses, setBusDataChanged, setRoutesDataChanged }) {
     const [showSuccess, setShowSuccess] = useState(false)
     const [deletedBus, setDeletedBus] = useState(null)
     const [editingId, setEditingId] = useState(null)
@@ -13,8 +13,8 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged }) {
     const [updatedBus, setUpdatedBus] = useState(null)
 
     const handleDelete = async (bus) => {
-        if(bus.status === 'assigned'){
-            alert('You cannot delete a assigned bus')
+        if (bus.status === 'active') {
+            alert('You cannot delete a active bus')
             return
         }
         const response = await axios.delete(`${server}/bus/deleteBus/${bus._id}`)
@@ -45,14 +45,25 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged }) {
         }))
     }
 
-    const handleSave = async (busId) => {
+    const handleSave = async (bus) => {
         try {
-            const response = await axios.put(`${server}/bus/updateBus/${busId}`, {
+            // console.log(busId , editData);
+            if (bus.status === 'active' && editData.status === 'maintenance') {
+                if (!confirm('Your bus is active on route , bus will get removed from routes')) {
+                    return;
+                }
+            }
+            const response = await axios.patch(`${server}/bus/updateBus/${bus._id}`, {
                 busNo: editData.busNo,
                 numberPlate: editData.numberPlate.toLowerCase(),
-                status: editData.status.toLowerCase()
+                status: editData.status.toLowerCase(),
+                originalStatus: bus.status
             })
+
             if (response.status === 200) {
+                if (editData.status.toLowerCase() !== bus.status) {
+                    setRoutesDataChanged(true);
+                }
                 setUpdatedBus(response.data.bus)
                 setShowUpdateSuccess(true)
                 setEditingId(null)
@@ -80,7 +91,7 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged }) {
         setUpdatedBus(null)
     }
 
-   
+
 
     return (
         <div>
@@ -116,7 +127,7 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged }) {
                                         {editingId === bus._id ? (
                                             <input
                                                 type="text"
-                                                value={editData.numberPlate}
+                                                value={editData.numberPlate.toUpperCase()}
                                                 onChange={(e) => handleInputChange('numberPlate', e.target.value)}
                                                 className="w-full px-2 py-1 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                                             />
@@ -134,18 +145,19 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged }) {
                                                 onChange={(e) => handleInputChange('status', e.target.value)}
                                                 className="px-2 py-1 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                                             >
-                                                {editData.status === 'assigned' && <option value="assigned">assigned</option>}
-                                                {editData.status === 'unassigned' &&   <option value="unassigned">unassigned</option>}                                              
+                                                {editData.status === 'active' && <option value="active">Active</option>}
+                                                {editData.status === 'inactive' && <option value="inactive">Inactive</option>}
+                                                {editData.status === 'maintenance' && <option value="inactive">Inactive</option>}
                                                 <option value="maintenance">maintenance</option>
                                             </select>
                                         ) : (
                                             <span
-                                                className={`px-2 py-1 font-semibold leading-tight rounded-full ${bus.status === 'assigned'
+                                                className={`px-2 py-1 font-semibold leading-tight rounded-full ${bus.status === 'active'
                                                     ? ('text-green-700 bg-green-100 dark:bg-green-700 dark:text-green-100')
-                                                    : (bus.status === 'unassigned' ? 'text-red-700 bg-red-100 dark:bg-red-700 dark:text-red-100' : 'text-yellow-700 bg-yellow-100 dark:bg-yellow-700 dark:text-yellow-100')
+                                                    : (bus.status === 'inactive' ? 'text-red-700 bg-red-100 dark:bg-red-700 dark:text-red-100' : 'text-yellow-700 bg-yellow-100 dark:bg-yellow-700 dark:text-yellow-100')
                                                     }`}
                                             >
-                                                {bus.status !== 'maintenance' ? 'Route' : ''} {bus.status}
+                                                {bus.status === 'active' ? 'Active on Route' : bus.status === 'inactive' ? 'Inactive on Route' : 'Maintanence'}
                                             </span>
                                         )}
                                     </td>
@@ -158,7 +170,7 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged }) {
                          bg-green-100 text-green-700 hover:bg-green-200 
                          dark:bg-green-900 dark:text-green-300 dark:hover:bg-green-800 
                          transition font-semibold shadow-sm cursor-pointer"
-                                                        onClick={() => handleSave(bus._id)}
+                                                        onClick={() => handleSave(bus)}
                                                     >
                                                         <svg xmlns="http://www.w3.org/2000/svg"
                                                             className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -1,3 +1,3 @@
-const server = 'http://localhost:3000'
+const server = 'https://routexserver.onrender.com'
 
 export default server   

@@ -25,15 +25,16 @@ export default function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState('')
   const [showRouteForm, setShowRouteForm] = useState(false)
   const [showBusForm, setShowBusForm] = useState(false);
-  const [unAssignedBus, setUnAssignedBus] = useState([]);
-  const [assignedBusCount, setAssignedBusCount] = useState(0);
-  const [unAssignedBusCount, setUnAssignedBusCount] = useState(0);
+  const [inactiveBus, setInactiveBus] = useState([]);
+  const [activeBusCount, setActiveBusCount] = useState(0);
+  const [inactiveBusCount, setInactiveBusCount] = useState(0);
   const [showDriverForm, setShowDriverForm] = useState(false)
 
   const [driverDataChanged, setDriverDataChanged] = useState(false)
   const [busDataChanged, setBusDataChanged] = useState(false);
   const [routesDataChanged, setRoutesDataChanged] = useState(true);
-
+  const [routeHaveBus, setRouteHaveBus] = useState();
+ 
   const [buses, setBuses] = useState([])
   const [drivers, setDrivers] = useState([])
   const [routes, setRoutes] = useState([])
@@ -44,8 +45,8 @@ export default function AdminDashboard() {
     try {
       const response = await axios.get(`${server}/routes/getAllRoutes`);
       setRoutes(response.data.routes || []);
-      setUnAssignedBus(response.data.unassignedBus || []);
-      console.log("fecthing route data ", response)
+      setInactiveBus(response.data.inactiveBuses || []);
+      setRouteHaveBus(response.data.routeHaveBus || 0);
       setRoutesDataChanged(false);
     } catch (error) {
       console.error("Error fetching routes:", error);
@@ -59,8 +60,8 @@ export default function AdminDashboard() {
       const response = await axios.get(`${server}/bus/getAllBuses`);
       setBuses(response.data.buses || []);
       setBusDataChanged(false);
-      setAssignedBusCount(response.data.assignedBusCount);
-      setUnAssignedBusCount(response.data.unassignedBusCount);
+      setActiveBusCount(response.data.activeBusCount);
+      setInactiveBusCount(response.data.inactiveBusCount);
     } catch (error) {
       console.error("Error fetching buses:", error);
     }
@@ -83,7 +84,7 @@ export default function AdminDashboard() {
     setShowRouteDashboard(true);
     setShowBusDashboard(false);
     setShowDriverDashboard(false);
-    if (routes.length === 0 || routesDataChanged){
+    if (routes.length === 0 || routesDataChanged) {
       fetchRoutes();
       setRoutesDataChanged(false);
     }
@@ -93,7 +94,7 @@ export default function AdminDashboard() {
     setShowBusDashboard(true);
     setShowDriverDashboard(false);
     setShowRouteDashboard(false);
-    if (buses.length === 0 || busDataChanged){
+    if (buses.length === 0 || busDataChanged) {
       fetchBuses();
       setBusDataChanged(false)
     }
@@ -160,12 +161,12 @@ export default function AdminDashboard() {
           <a className="ml-6 text-lg font-bold text-gray-800 dark:text-gray-200" href="#">Route<span className='text-red-600'>X</span></a>
           <ul className="mt-6">
             <li className="relative px-6 py-3">
-              <span className="absolute inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg" aria-hidden="true"></span>
+              <span className={`absolute ${showRouteDashboard ? '' : 'hidden'} inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg`} aria-hidden="true"></span>
               <button onClick={handleManageRoutes} className={`inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 cursor-pointer 
                        ${!showRouteDashboard
                   ? "text-gray-400 dark:text-gray-500"  // lighter when true
                   : "text-gray-800 hover:text-gray-800 dark:text-gray-100 dark:hover:text-gray-200"}`} href="#">
-                <svg className="w-5 h-5" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-5 h-5" aria-hidden="true" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
                   <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                 </svg>
                 <span className="ml-4">Manage Routes</span>
@@ -175,11 +176,12 @@ export default function AdminDashboard() {
           <ul>
 
             <li className="relative px-6 py-3">
+              <span className={`absolute ${showBusDashboard ? '' : 'hidden'} inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg`} aria-hidden="true"></span>
               <button onClick={handleMangeBus} className={`inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 cursor-pointer 
     ${!showBusDashboard
                   ? "text-gray-400 dark:text-gray-500"  // lighter when true
                   : "text-gray-800 hover:text-gray-800 dark:text-gray-100 dark:hover:text-gray-200"}`}>
-                <svg className="w-5 h-5" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-5 h-5" aria-hidden="true" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
                   <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
                 </svg>
                 <span className="ml-4">Manage Buses</span>
@@ -187,11 +189,12 @@ export default function AdminDashboard() {
             </li>
 
             <li className="relative px-6 py-3">
+              <span className={`absolute ${showDriverDashboard ? '' : 'hidden'} inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg`} aria-hidden="true"></span>
               <button onClick={handleManageDrivers} className={`inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 cursor-pointer 
     ${!showDriverDashboard
                   ? "text-gray-400 dark:text-gray-500"  // lighter when true
                   : "text-gray-800 hover:text-gray-800 dark:text-gray-100 dark:hover:text-gray-200"}`}>
-                <svg className="w-5 h-5" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-5 h-5" aria-hidden="true" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
                   <path d="M12 4.354a4 4 0 110 8.646 4 4 0 010-8.646zM9 9H7a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4m-6 0h6"></path>
                 </svg>
                 <span className="ml-4">Manage Drivers</span>
@@ -213,7 +216,7 @@ export default function AdminDashboard() {
           <div className="container flex items-center justify-between h-full px-6 mx-auto text-purple-600 dark:text-purple-300">
             <button className="p-1 mr-5 -ml-1 rounded-md md:hidden focus:outline-none focus:shadow-outline-purple" onClick={() => setIsSideMenuOpen(!isSideMenuOpen)} aria-label="Menu">
               <svg className="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                <path fillRule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd"></path>
               </svg>
             </button>
 
@@ -221,7 +224,7 @@ export default function AdminDashboard() {
               <div className="relative w-full max-w-xl mr-6 focus-within:text-purple-500">
                 <div className="absolute inset-y-0 flex items-center pl-2">
                   <svg className="w-4 h-4" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                    <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd"></path>
                   </svg>
                 </div>
                 <input
@@ -244,7 +247,7 @@ export default function AdminDashboard() {
                     </svg>
                   ) : (
                     <svg className="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path>
+                      <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd"></path>
                     </svg>
                   )}
                 </button>
@@ -319,7 +322,7 @@ export default function AdminDashboard() {
               <RouteForm
                 onClose={() => setShowRouteForm(false)}
                 setRoutesDataChanged={setRoutesDataChanged}
-                unassignedBus={unAssignedBus}
+                availableBuses={inactiveBus}
                 setBusDataChanged={setBusDataChanged}
               />
             )}
@@ -342,12 +345,12 @@ export default function AdminDashboard() {
                   <StagesItem
                     items={[
                       { heading: "Total Buses", value: buses.length, icon: "users", color: "orange" },
-                      { heading: "Assigned Buses", value: assignedBusCount, icon: "wallet", color: "green" },
-                      { heading: "UnAssigned Buses", value: unAssignedBusCount, icon: "cart", color: "blue" },
-                      { heading: "Maintenance", value: buses.length - (assignedBusCount + unAssignedBusCount), icon: "chat", color: "teal" },
+                      { heading: "Buses Active on Route", value: activeBusCount, icon: "wallet", color: "green" },
+                      { heading: "Buses Inactive on Route", value: inactiveBusCount, icon: "cart", color: "blue" },
+                      { heading: "Maintenance", value: buses.length - (activeBusCount + inactiveBusCount), icon: "chat", color: "teal" },
                     ]}
                   />
-                  <BusDashboard filteredBuses={filteredBuses} setBusDataChanged={setBusDataChanged} />
+                  <BusDashboard filteredBuses={filteredBuses} setBusDataChanged={setBusDataChanged} setRoutesDataChanged={setRoutesDataChanged} />
                 </>
               )
             }
@@ -373,15 +376,15 @@ export default function AdminDashboard() {
                   <StagesItem
                     items={[
                       { heading: "Total Routes", value: routes.length, icon: "users", color: "orange" },
-                      { heading: "Assigned Buses", value: assignedBusCount, icon: "wallet", color: "green" },
-                      { heading: "UnAssigned Buses", value: unAssignedBus.length, icon: "cart", color: "blue" },
-                      { heading: "Let's do", value: 69, icon: "chat", color: "teal" },
+                      { heading: "Routes have bus", value: routeHaveBus, icon: "wallet", color: "green" },
+                      { heading: "Routes doesn't have Buses", value: routes.length - routeHaveBus, icon: "cart", color: "blue" },
+                      { heading: "Total Available Buses", value: 0, icon: "chat", color: "teal" },
                     ]}
                   />
                   <RoutesDashboard
                     filteredRoutes={filteredRoutes}
                     busData={buses}
-                    unassignedBus={unAssignedBus}
+                    availableBuses={inactiveBus}
                     setRoutesDataChanged={setRoutesDataChanged}
                     setBusDataChanged={setBusDataChanged}
                   />

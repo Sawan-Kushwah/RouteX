@@ -1,12 +1,11 @@
 import BusDriver from '../models/busDriverModel.js';
-import Driver from '../models/busDriverModel.js';
 import bcrypt from 'bcrypt';
 
 const addDriver = async (req, res) => {
     try {
         const { email, password, firstName, lastName } = req.body;
 
-        const existingDriver = await Driver.findOne({ email });
+        const existingDriver = await BusDriver.findOne({ email });
 
         if (existingDriver) {
             return res.status(400).json({ message: "Driver with the same email already exists" });
@@ -20,7 +19,7 @@ const addDriver = async (req, res) => {
                 if (err) {
                     return res.status(500).json({ message: "Error hashing password", error: err.message });
                 }
-                const newDriver = new Driver({ firstName, lastName, email, password: hashedPassword });
+                const newDriver = new BusDriver({ firstName, lastName, email, password: hashedPassword });
                 await newDriver.save();
                 res.status(200).json({ message: "Driver added successfully", driver: newDriver });
             });
@@ -33,8 +32,8 @@ const addDriver = async (req, res) => {
 
 const getAllDrivers = async (req, res) => {
     try {
-        const drivers = await Driver.find();
-        res.status(200).json({ drivers: drivers.map(driver => ({ _id: driver._id, email: driver.email, firstName: driver.firstName, lastName: driver.lastName })) });
+        const drivers = await BusDriver.find({}).select("_id email firstName lastName updatedAt")
+        res.status(200).json({ message: "All driver ", drivers });
     } catch (error) {
         res.status(500).json({ message: "Error fetching drivers", error: error.message });
     }
@@ -61,7 +60,7 @@ const updateDriver = async (req, res) => {
 const deleteDriver = async (req, res) => {
     try {
         const id = req.params.id;
-        const driver = await Driver.findByIdAndDelete(id);
+        const driver = await BusDriver.findByIdAndDelete(id);
         if (!driver) {
             return res.status(404).json({ message: "Driver not found" });
         }

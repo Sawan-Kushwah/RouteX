@@ -4,6 +4,7 @@ import axios from 'axios'
 import server from '../utils/backendServer'
 import { useNavigate } from 'react-router-dom'
 import { useSearch } from '../utils/useSearch'
+import formatUpdateTime from '../utils/formatUpdateTime'
 
 function SelectBus() {
   const navigate = useNavigate()
@@ -51,12 +52,12 @@ function SelectBus() {
         (position) => {
           const { latitude, longitude } = position.coords
           setCurrentLocation({ lat: latitude, lng: longitude })
-          console.log('Current location:', { lat: latitude, lng: longitude })
+          console.log('Current location:', { lat: latitude, lng: longitude, time: formatUpdateTime(Date.now()) })
 
           // Transmit location via socket
           socket.emit('busUpdate', {
-            busId: route.busNo,
-            busNo: route.busNo,
+            busId: route.bus._id,
+            busNo: route.bus.busNo,
             routeNo: route.routeNo,
             lat: latitude,
             lng: longitude,
@@ -179,7 +180,7 @@ function SelectBus() {
                       <div className="flex items-start justify-between mb-4">
                         <div>
                           <h3 className="text-lg font-bold text-white mb-1">
-                            Bus Number #{route.busNo}
+                            Bus Number #{route.bus.busNo}
                           </h3>
                           <p className="text-purple-400 font-mono text-sm font-bold">Route #{route.routeNo}</p>
                         </div>
@@ -261,7 +262,7 @@ function SelectBus() {
                   </div>
                   <div>
                     <p className="text-gray-400 text-sm mb-1">Bus Number</p>
-                    <p className="text-white font-bold text-lg">{selectedRoute?.busNo}</p>
+                    <p className="text-white font-bold text-lg">{selectedRoute.bus?.busNo}</p>
                   </div>
                 </div>
               </div>

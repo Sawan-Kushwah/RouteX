@@ -14,9 +14,8 @@ function Home() {
   const verifyToken = async () => {
     try {
       const response = await axios.get(`${server}/user/verify`, {
-        withCredentials: true
+        withCredentials: true,
       })
-      console.log("verifyed token ", response);
 
       if (response.status === 200) {
         if (response.data.user.role == 'admin') {
@@ -26,7 +25,6 @@ function Home() {
         }
       }
     } catch (error) {
-      console.log(error)
       return null
     }
   }
@@ -40,7 +38,7 @@ function Home() {
     verifyToken()
   }
 
- 
+
 
   return (
     <>

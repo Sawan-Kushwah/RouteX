@@ -22,10 +22,11 @@ const login = async (req, res) => {
 
       res.cookie("authToken", token, {
         httpOnly: true,
-        secure: false,
-        sameSite: "Lax",
+        secure: true,       // because Render is HTTPS
+        sameSite: "None",   // because frontend & backend are different origins
         maxAge: 24 * 60 * 60 * 1000
       });
+
 
       return res.status(200).json({
         message: 'Login successful',
@@ -55,8 +56,8 @@ const login = async (req, res) => {
 
     res.cookie("authToken", token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "Lax",
+      secure: true,       // because Render is HTTPS
+      sameSite: "None",   // because frontend & backend are different origins
       maxAge: 24 * 60 * 60 * 1000
     });
 
@@ -67,7 +68,6 @@ const login = async (req, res) => {
     });
 
   } catch (error) {
-    console.log("LOGIN ERROR:", error);
     return res.status(500).json({
       message: 'Error during login',
       error: error.message
@@ -86,12 +86,14 @@ const verifyToken = (req, res) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log(token, decoded)
     res.cookie("authToken", token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "Lax",
+      secure: true,       // because Render is HTTPS
+      sameSite: "None",   // because frontend & backend are different origins
       maxAge: 24 * 60 * 60 * 1000
     });
+
 
     return res.status(200).json({
       valid: true,
@@ -110,15 +112,14 @@ const logout = (req, res) => {
   try {
     res.cookie("authToken", "", {
       httpOnly: true,
-      secure: false,
-      sameSite: "Lax",
+      secure: true,       // because Render is HTTPS
+      sameSite: "None",   // because frontend & backend are different origins
       expires: new Date(0)
     });
-
     return res.status(200).json({ message: "Logged out" });
 
   } catch (error) {
-    return res.status(401).json({ valid: false, message: "Invalid token" });
+    return res.status(500).json({ message: "Error during logout" });
   }
 };
 

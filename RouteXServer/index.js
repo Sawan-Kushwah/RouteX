@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import connectDB from "./db/connectDB.js";
 dotenv.config();
 import cors from 'cors';
-
+const port = process.env.PORT || 3000;
 
 import busRoutes from './routes/busRoutes.js';
 import bus from './routes/bus.js';
@@ -19,7 +19,7 @@ const httpServer = createServer(app);
 
 
 const io = new Server(httpServer, {
-    cors: { origin: ['http://localhost:5173'], credentials: true }
+    cors: { origin: ['https://routexclient.onrender.com', 'http://localhost:5173'], credentials: true }
 });
 
 // akk empty array rhe ga
@@ -33,7 +33,7 @@ connectDB();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-    origin: "http://localhost:5173",  // your frontend URL
+    origin: ["https://routexclient.onrender.com", "http://localhost:5173"],  // your frontend URL
     credentials: true
 }));
 // parse cookies before route handlers so controllers can access `req.cookies`
@@ -79,6 +79,6 @@ io.on("connection", (socket) => {
     })
 });
 
-httpServer.listen(process.env.PORT, () => {
-    console.log(`Server is running on http://localhost:${process.env.PORT}`);
+httpServer.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
 });
