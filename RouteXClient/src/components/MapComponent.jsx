@@ -1,13 +1,16 @@
-import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
-import { Icon, Control } from 'leaflet'
+import { MapContainer, Marker, Popup, TileLayer, useMap , } from 'react-leaflet'
+import Control from "react-leaflet-custom-control";
+
+import { Icon } from 'leaflet'
 import { useEffect, useState } from 'react'
 import 'leaflet/dist/leaflet.css'
 import socket from '../utils/socket'
 import busIcon from '../assets/busicon.png'
 import meIcon from '../assets/me.png'
-
+import server from '../utils/backendServer'
 
 import '../App.css'
+import RouteSearch from './SearchBar';
 
 
 function ChangeView({ lat, lng }) {
@@ -16,77 +19,15 @@ function ChangeView({ lat, lng }) {
     return null;
 }
 
-function MapControls({ buses, userPosition }) {
-    const map = useMap();
+const routesEndpoint =`${server}/routes/searchRoutes`
+const requiredFildes = ['stops', 'busNo' , 'routeNo']
 
-    useEffect(() => {
-        // Info Bar Control
-        const InfoControl = Control.extend({
-            onAdd: function (map) {
-                const div = document.createElement('div');
-                div.className = 'leaflet-control-info';
-                div.innerHTML = `
-                    <div style="background: rgba(17, 24, 39, 0.9); backdrop-filter: blur(12px); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; padding: 12px 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); min-width: 250px;">
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                            <div style="width: 10px; height: 10px; background: #22c55e; border-radius: 50%; animation: pulse 2s infinite;"></div>
-                            <p style="color: #d1d5db; font-size: 14px; margin: 0;">
-                                <span style="font-weight: 600; color: white;">${buses.length}</span> buses tracking
-                            </p>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div style="width: 10px; height: 10px; background: #3b82f6; border-radius: 50%;"></div>
-                            <p style="color: #d1d5db; font-size: 14px; margin: 0;">
-                                Your Location: <span style="font-weight: 600; color: white;">${userPosition.lat.toFixed(4)}, ${userPosition.lng.toFixed(4)}</span>
-                            </p>
-                        </div>
-                    </div>
-                `;
-                return div;
-            }
-        });
 
-        const infoControl = new InfoControl({ position: 'topright' });
-        infoControl.addTo(map);
-
-        // Legend Control
-        const LegendControl = Control.extend({
-            onAdd: function (map) {
-                const div = document.createElement('div');
-                div.className = 'leaflet-control-legend';
-                div.innerHTML = `
-                    <div style="background: rgba(17, 24, 39, 0.9); backdrop-filter: blur(12px); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; padding: 12px 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);">
-                        <p style="color: #9ca3af; font-size: 11px; font-weight: 600; margin: 0 0 8px 0; letter-spacing: 0.05em;">LEGEND</p>
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <img src="${meIcon}" alt="Your location" style="width: 20px; height: 20px;" />
-                                <span style="color: #d1d5db; font-size: 12px;">Your Location</span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <img src="${busIcon}" alt="Bus" style="width: 20px; height: 20px;" />
-                                <span style="color: #d1d5db; font-size: 12px;">Bus Location</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                return div;
-            }
-        });
-
-        const legendControl = new LegendControl({ position: 'bottomright' });
-        legendControl.addTo(map);
-
-        return () => {
-            map.removeControl(infoControl);
-            map.removeControl(legendControl);
-        };
-    }, [map, buses.length, userPosition]);
-
-    return null;
-}
 
 const MapComponent = () => {
     const [buses, setBuses] = useState([]);
     const [userPosition, setuserPosition] = useState({ lat: 0, lng: 0 });
+
 
     useEffect(() => {
         socket.on("connect", () => {
@@ -140,13 +81,14 @@ const MapComponent = () => {
     return (
         <div className='h-full w-full flex flex-col relative bg-gray-800'>
             {/* Map Container */}
+            {/* <div className='bg-pink-300 w-100 h-100'></div> */}
             <div className='flex-1 w-full rounded-none overflow-hidden'>
-                <MapContainer center={[userPosition.lat ? userPosition.lat : 0, userPosition.lng ? userPosition.lng : 0]} zoom={16} style={{ height: '100%', width: '100%' }}>
+
+                <MapContainer center={[userPosition.lat ? userPosition.lat : 0, userPosition.lng ? userPosition.lng : 0]} zoom={16} zoomControl={false}  style={{ height: '100%', width: '100%' }}>
                     <TileLayer url='https://tile.openstreetmap.org/{z}/{x}/{y}.png' attribution='© OpenStreetMap contributors' />
 
-                    <ChangeView lat={userPosition.lat} lng={userPosition.lng} />
-
-                    <MapControls buses={buses} userPosition={userPosition} />
+                    <ChangeView lat={userPosition.lat} lng={userPosition.lng} />    
+                    {/* <MapControls buses={buses} userPosition={userPosition} /> */}
 
                     <Marker position={[userPosition.lat, userPosition.lng]} icon={customUserLocationIcon}>
                         <Popup className='custom-popup'>
@@ -167,6 +109,61 @@ const MapComponent = () => {
                             </Popup>
                         </Marker>)
                     })}
+
+                    {/* <Control position='bottomleft'>
+                    <ZoomControl  />
+
+                    </Control> */}
+
+                    <Control position="topleft">
+                        <RouteSearch url={routesEndpoint} limit={10} fields={requiredFildes} />
+                    </Control>
+                    <Control position="bottomright">
+                        <div className="bg-gray-900/90 backdrop-blur-xl border border-purple-400/30 rounded-lg px-4 py-3 shadow-lg">
+                            <p className="text-gray-400 text-[11px] font-semibold mb-2 tracking-wider">
+                                LEGEND
+                            </p>
+
+                            <div className="flex flex-col gap-2">
+                                <div className="flex items-center gap-2">
+                                    <img src={meIcon} alt="Your location" className="w-5 h-5" />
+                                    <span className="text-gray-300 text-xs">Your Location</span>
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                    <img src={busIcon} alt="Bus" className="w-5 h-5" />
+                                    <span className="text-gray-300 text-xs">Bus Location</span>
+                                </div>
+                            </div>
+                        </div>
+                    </Control>
+
+
+                    <Control position='topright' >
+                        <div className="bg-gray-900/90 backdrop-blur-xl border border-purple-400/30 rounded-lg px-4 py-3 shadow-lg min-w-[250px]">
+
+                            {/* Buses Tracking */}
+                            <div className="flex items-center gap-2 mb-3">
+                                <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
+
+                                <p className="text-gray-300 text-sm m-0">
+                                    <span className="font-semibold text-white">{buses.length}</span> buses tracking
+                                </p>
+                            </div>
+
+                            {/* User Location */}
+                            <div className="flex items-center gap-2">
+                                <div className="w-2.5 h-2.5 bg-blue-500 rounded-full"></div>
+
+                                <p className="text-gray-300 text-sm m-0">
+                                    Your Location:{" "}
+                                    <span className="font-semibold text-white">
+                                        {userPosition?.lat.toFixed(4)}, {userPosition?.lng.toFixed(4)}
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </Control>
 
                 </MapContainer>
             </div>

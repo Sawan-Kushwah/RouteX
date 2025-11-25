@@ -2,7 +2,6 @@ import { useState } from 'react'
 import LoginModal from './LoginModal.jsx'
 import { useEffect } from 'react'
 import MapComponent from "./MapComponent.jsx"
-import RouteSearch from "./RouteSearch.jsx"
 import axios from 'axios'
 import server from '../utils/backendServer.js'
 import { useNavigate } from 'react-router-dom'
@@ -36,7 +35,7 @@ function Home() {
     verifyToken();
   }, [])
 
-  const handleLoginSuccess = (data) => {
+  const handleLoginSuccess = () => {
     setIsLoginOpen(false)
     verifyToken()
   }
@@ -78,7 +77,7 @@ function Home() {
 
         {/* Main Content */}
         <main className="flex-1 relative w-full overflow-hidden">
-          <RouteSearch />
+          {/* <Rou  teSearch /> */}
           {!isLoginOpen && <MapComponent />}
         </main>
 
