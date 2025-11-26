@@ -1,4 +1,4 @@
-import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
+import { MapContainer, Marker, Popup, TileLayer, Tooltip, useMap } from 'react-leaflet'
 import { Icon, Control } from 'leaflet'
 import { useEffect, useState } from 'react'
 import 'leaflet/dist/leaflet.css'
@@ -21,14 +21,14 @@ function MapControls({ buses, userPosition }) {
                 const div = document.createElement('div');
                 div.className = 'leaflet-control-info';
                 div.innerHTML = `
-                    <div style="background: rgba(17,24,39,0.9); backdrop-filter: blur(12px); border: 1px solid rgba(168,85,247,0.3); border-radius: 8px; padding: 12px 16px; min-width: 250px;">
-                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+                    <div class="mobileInfoContainer" style="background: rgba(17,24,39,0.9); backdrop-filter: blur(12px); border: 1px solid rgba(168,85,247,0.3); border-radius: 8px; padding: 12px 16px; min-width: 250px;">
+                        <div class="mobileInfoControl" style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
                             <div style="width:10px;height:10px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite;"></div>
                             <p style="color:#d1d5db;font-size:14px;margin:0;">
                                 <span style="font-weight:600;color:white;">${buses.length}</span> buses tracking
                             </p>
                         </div>
-                        <div style="display:flex;align-items:center;gap:8px;">
+                        <div class="hideMobile" style="display:flex;align-items:center;gap:8px;">
                             <div style="width:10px;height:10px;background:#3b82f6;border-radius:50%;"></div>
                             <p style="color:#d1d5db;font-size:14px;margin:0;">
                                 Your Location: <span style="font-weight:600;color:white;">${userPosition.lat.toFixed(4)}, ${userPosition.lng.toFixed(4)}</span>
@@ -45,8 +45,7 @@ function MapControls({ buses, userPosition }) {
                 const div = document.createElement('div');
                 div.className = 'leaflet-control-legend';
                 div.innerHTML = `
-                    <div style="background:rgba(17,24,39,0.9);backdrop-filter:blur(12px);border:1px solid rgba(168,85,247,0.3);border-radius:8px;padding:12px 16px;">
-                        <p style="color:#9ca3af;font-size:11px;font-weight:600;margin:0 0 8px;">LEGEND</p>
+                    <div class="mobileInfoContainer" style="background:rgba(17,24,39,0.9);backdrop-filter:blur(12px);border:1px solid rgba(168,85,247,0.3);border-radius:8px;padding:12px 16px;">
                         <div style="display:flex;flex-direction:column;gap:8px;">
                             <div style="display:flex;align-items:center;gap:8px;">
                                 <img src="${meIcon}" style="width:20px;height:20px;" />
@@ -86,7 +85,7 @@ function FirstCenter({ userPosition, hasCentered, setHasCentered }) {
 
     useEffect(() => {
         if (!hasCentered && userPosition.lat !== 0 && userPosition.lng !== 0) {
-            map.setView([userPosition.lat, userPosition.lng], 16);
+            map.setView([userPosition.lat, userPosition.lng], 14);
             setHasCentered(true);
         }
 
@@ -169,10 +168,10 @@ const MapComponent = () => {
                             return;
                         }
                         if (map && userPosition.lat) {
-                            map.setView([userPosition.lat, userPosition.lng], 16);
+                            map.setView([userPosition.lat, userPosition.lng], 14);
                         }
                     }}
-                    className="absolute bottom-32 right-4 z-9999 cursor-pointer bg-gray-200 text-white px-3 py-2 rounded shadow"
+                    className="absolute sm:bottom-30 bottom-38 right-4 z-9999 cursor-pointer bg-gray-200 text-white px-3 py-2 rounded shadow"
                     title='Center on me'
                 >
                     <img src={centerPosition} alt="Center on me" className='w-7 h-7' />
@@ -195,6 +194,9 @@ const MapComponent = () => {
                     <MapControls buses={buses} userPosition={userPosition} />
 
                     <Marker position={[userPosition.lat, userPosition.lng]} icon={customUserLocationIcon}>
+                        <Tooltip permanent direction="right" offset={[10, 0]}>
+                            <span className="font-semibold text-[10px] text-blue-700">You</span>
+                        </Tooltip>
                         <Popup className='custom-popup'>
                             <div className='text-center'>
                                 <p className='font-bold text-gray-800'>Your Location</p>
@@ -204,6 +206,16 @@ const MapComponent = () => {
                     </Marker>
 
                     <Marker position={[destinationLocation.lat, destinationLocation.lng]} icon={customDestinationLocationIcon}>
+                        <Tooltip permanent direction="right" offset={[10, 0]}>
+                            <div className="font-semibold text-[10px] text-blue-700">
+                                <div>
+                                    Sushila Devi Bansal
+                                </div>
+                                <div>
+                                    College Of Technology
+                                </div>
+                            </div>
+                        </Tooltip>
                         <Popup className='custom-popup'>
                             <div className='text-center'>
                                 <p className='font-bold text-gray-800'>Sushila Devi Bansal College, BGI Indore</p>

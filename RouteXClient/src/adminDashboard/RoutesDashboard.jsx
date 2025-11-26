@@ -90,12 +90,12 @@ export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, 
 
 
     return (
-        <div className="w-full overflow-visible rounded-lg shadow-xs">
-            <div className={`w-full overflow-x-auto ${filteredRoutes.length < 5 ? 'h-screen' : ''}`}>
-                <table className="w-full whitespace-no-wrap">
+        <div className="w-full rounded-lg shadow-xs overflow-x-scroll">
+            <div className={`${filteredRoutes.length < 5 ? 'h-[30vh]' : ''}`}>
+                <table className="min-w-max sm:w-full table-auto whitespace-no-wrap">
                     <thead>
                         <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
-                            <th className="px-4 py-3">Route Number</th>
+                            <th className="px-4 py-3">Route</th>
                             <th className="px-4 py-3">Stops</th>
                             <th className="px-4 py-3">Assigned Bus</th>
                             <th className="px-4 py-3">Last Update</th>
@@ -212,7 +212,7 @@ export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, 
 
                                                 <td className="px-4 py-3 text-sm relative">
                                                     <div className="flex flex-wrap gap-2">
-                                                        {route.stops.slice(0, 4).map((stop, idx) => (
+                                                        {route.stops.slice(0, 3).map((stop, idx) => (
                                                             <div
                                                                 key={idx}
                                                                 className="bg-gray-100 dark:bg-gray-600 px-2 py-1 rounded-md text-xs text-gray-800 dark:text-gray-200 font-medium shadow-sm"
@@ -230,7 +230,7 @@ export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, 
                                                                 }
                                                                 className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 px-2 py-1 rounded-full text-xs font-semibold cursor-pointer"
                                                             >
-                                                                +{route.stops.length - 4} more
+                                                                +{route.stops.length - 3} more
                                                             </button>
                                                         )}
                                                     </div>
