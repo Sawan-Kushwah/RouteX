@@ -1,5 +1,3 @@
-import React from 'react';
-
 const iconSet = {
     users: (
         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -35,7 +33,7 @@ const colorSet = {
 
 const StagesItem = ({ items }) => {
     return (
-        <div className="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-6 mb-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-4 overflow-x-auto">
             {items.map((item, index) => (
                 <div
                     key={index}
@@ -56,6 +54,7 @@ const StagesItem = ({ items }) => {
                 </div>
             ))}
         </div>
+
     );
 };
 
