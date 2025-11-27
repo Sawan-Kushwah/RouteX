@@ -240,14 +240,14 @@ export default function RouteSearch() {
                         </p>
                         <div className="space-y-3 relative">
                             {/* Vertical line connecting stops */}
-                            <div className="absolute left-3 top-8 bottom-0 w-0.5 bg-gradient-to-b from-green-400 via-blue-400 to-red-400"></div>
+                            <div className="absolute left-3 top-8 bottom-0 w-0.5 bg-linear-to-b from-green-400 via-blue-400 to-red-400"></div>
                             
                             {selectedRoute.stops.map((stop, idx) => (
                                 <div
                                     key={idx}
                                     className="flex items-start gap-4 relative z-10"
                                 >
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg flex-shrink-0 border-4 border-white dark:border-gray-800 ${
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg shrink-0 border-4 border-white dark:border-gray-800 ${
                                         idx === 0
                                             ? 'bg-green-500 ring-2 ring-green-300 dark:ring-green-700'
                                             : idx === selectedRoute.stops.length - 1

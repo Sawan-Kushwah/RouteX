@@ -1,16 +1,19 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { useSearch } from '../utils/useSearch'
-import BusDashboard from './BusDashboard'
-import RoutesDashboard from './RoutesDashboard'
-import DriverDashboard from './DriverDashboard'
-import RouteForm from './RouteForm'
-import BusForm from './BusForm'
 import axios from 'axios'
 import server from '../utils/backendServer'
 import { useNavigate } from 'react-router-dom'
-import DriverForm from './DriverForm'
-import StagesItem from './StagesItem'
 import adminProfile from '../assets/adminProfile.png'
+
+import RouteForm from './RouteForm'
+import BusForm from './BusForm'
+import DriverForm from './DriverForm'
+import DashboardSkeleton from './DashboardSkeleton'
+
+const StagesItem = lazy(() => import('./StagesItem'))
+const BusDashboard = lazy(() => import('./BusDashboard'))
+const RoutesDashboard = lazy(() => import('./RoutesDashboard'))
+const DriverDashboard = lazy(() => import('./DriverDashboard'))
 
 
 
@@ -39,11 +42,13 @@ export default function AdminDashboard() {
   const [buses, setBuses] = useState([])
   const [drivers, setDrivers] = useState([])
   const [routes, setRoutes] = useState([])
+  const [loading, setLoading] = useState(false)
 
 
   async function fetchRoutes() {
     console.log("fetching route")
     try {
+      setLoading(true);
       const response = await axios.get(`${server}/routes/getAllRoutes`);
       setRoutes(response.data.routes || []);
       setInactiveBus(response.data.inactiveBuses || []);
@@ -51,6 +56,8 @@ export default function AdminDashboard() {
       setRoutesDataChanged(false);
     } catch (error) {
       console.error("Error fetching routes:", error);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -58,6 +65,7 @@ export default function AdminDashboard() {
   async function fetchBuses() {
     console.log("fetching bus")
     try {
+      setLoading(true);
       const response = await axios.get(`${server}/bus/getAllBuses`);
       setBuses(response.data.buses || []);
       setBusDataChanged(false);
@@ -65,6 +73,8 @@ export default function AdminDashboard() {
       setInactiveBusCount(response.data.inactiveBusCount);
     } catch (error) {
       console.error("Error fetching buses:", error);
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -72,11 +82,14 @@ export default function AdminDashboard() {
   async function fetchDrivers() {
     console.log('fetching driver')
     try {
+      setLoading(true);
       const response = await axios.get(`${server}/driver/getAllDrivers`)
       setDrivers(response.data.drivers || [])
       setDriverDataChanged(false);
     } catch (error) {
       console.error('Error fetching drivers:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -232,7 +245,6 @@ export default function AdminDashboard() {
               Logout
               <span className="ml-2 text-lg font-bold">⮞</span>
             </button>
-
           </div>
         </div>
       </aside>
@@ -385,58 +397,72 @@ export default function AdminDashboard() {
                 setDriverDataChanged={setDriverDataChanged}
               />
             )}
+
+            {loading && <DashboardSkeleton />}
             {
               showBusDashboard && (
                 <>
-                  <StagesItem
-                    items={[
-                      { heading: "Total Buses", value: buses.length, icon: "users", color: "orange" },
-                      { heading: "Buses Active on Route", value: activeBusCount, icon: "wallet", color: "green" },
-                      { heading: "Buses Inactive on Route", value: inactiveBusCount, icon: "cart", color: "blue" },
-                      { heading: "Maintenance", value: buses.length - (activeBusCount + inactiveBusCount), icon: "chat", color: "teal" },
-                    ]}
-                  />
-                  <BusDashboard filteredBuses={filteredBuses} setBusDataChanged={setBusDataChanged} setRoutesDataChanged={setRoutesDataChanged} />
+                  <Suspense fallback={<DashboardSkeleton />}>
+                    <StagesItem
+                      items={[
+                        { heading: "Total Buses", value: buses.length, icon: "users", color: "orange" },
+                        { heading: "Buses Active on Route", value: activeBusCount, icon: "wallet", color: "green" },
+                        { heading: "Buses Inactive on Route", value: inactiveBusCount, icon: "cart", color: "blue" },
+                        { heading: "Maintenance", value: buses.length - (activeBusCount + inactiveBusCount), icon: "chat", color: "teal" },
+                      ]}
+                    />
+                  </Suspense>
+                  <Suspense fallback={<DashboardSkeleton />}>
+                    <BusDashboard filteredBuses={filteredBuses} setBusDataChanged={setBusDataChanged} setRoutesDataChanged={setRoutesDataChanged} />
+                  </Suspense>
                 </>
               )
             }
             {
               showDriverDashboard && (
                 <>
-                  <StagesItem
-                    items={[
-                      { heading: "Total Driver", value: drivers.length, icon: "users", color: "orange" },
-                      { heading: "Active Driver", value: 0, icon: "wallet", color: "green" },
-                      { heading: "Inactive Driver", value: 0, icon: "cart", color: "blue" },
-                      { heading: "Maintenance", value: 0, icon: "chat", color: "teal" },
-                    ]}
-                  />
-
-                  <DriverDashboard filteredDrivers={filteredDrivers} setDriverDataChanged={setDriverDataChanged} />
+                  <Suspense fallback={<DashboardSkeleton />}>
+                    <StagesItem
+                      items={[
+                        { heading: "Total Driver", value: drivers.length, icon: "users", color: "orange" },
+                        { heading: "Active Driver", value: 0, icon: "wallet", color: "green" },
+                        { heading: "Inactive Driver", value: 0, icon: "cart", color: "blue" },
+                        { heading: "Maintenance", value: 0, icon: "chat", color: "teal" },
+                      ]}
+                    />
+                  </Suspense>
+                  <Suspense fallback={<DashboardSkeleton />}>
+                    <DriverDashboard filteredDrivers={filteredDrivers} setDriverDataChanged={setDriverDataChanged} />
+                  </Suspense>
                 </>
               )
             }
             {
               showRouteDashboard && (
                 <>
-                  <StagesItem
-                    items={[
-                      { heading: "Total Routes", value: routes.length, icon: "users", color: "orange" },
-                      { heading: "Routes have bus", value: routeHaveBus, icon: "wallet", color: "green" },
-                      { heading: "Routes doesn't have Buses", value: routes.length - routeHaveBus, icon: "cart", color: "blue" },
-                      { heading: "Total Available Buses", value: 0, icon: "chat", color: "teal" },
-                    ]}
-                  />
-                  <RoutesDashboard
-                    filteredRoutes={filteredRoutes}
-                    busData={buses}
-                    availableBuses={inactiveBus}
-                    setRoutesDataChanged={setRoutesDataChanged}
-                    setBusDataChanged={setBusDataChanged}
-                  />
+                  <Suspense fallback={<DashboardSkeleton />}>
+                    <StagesItem
+                      items={[
+                        { heading: "Total Routes", value: routes.length, icon: "users", color: "orange" },
+                        { heading: "Routes have bus", value: routeHaveBus, icon: "wallet", color: "green" },
+                        { heading: "Routes doesn't have Buses", value: routes.length - routeHaveBus, icon: "cart", color: "blue" },
+                        { heading: "Total Available Buses", value: 0, icon: "chat", color: "teal" },
+                      ]}
+                    />
+                  </Suspense>
+                  <Suspense fallback={<DashboardSkeleton />}>
+                    <RoutesDashboard
+                      filteredRoutes={filteredRoutes}
+                      busData={buses}
+                      availableBuses={inactiveBus}
+                      setRoutesDataChanged={setRoutesDataChanged}
+                      setBusDataChanged={setBusDataChanged}
+                    />
+                  </Suspense>
                 </>
               )
             }
+
           </div>
         </main>
 
