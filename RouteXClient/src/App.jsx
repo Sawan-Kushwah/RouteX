@@ -1,11 +1,14 @@
 
 import './App.css'
+import { lazy, Suspense } from 'react';
 import Home from './components/Home.jsx'
-import MapComponent from './components/MapComponent.jsx'
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import SelectBus from './components/SelectBus.jsx';
-import AdminDashboard from './adminDashboard/AdminDashboard.jsx'
 import ProtectedRoute from './components/ProtectedRoute'
+import SelectBusSkeleton from './components/SelectBusSkeleton.jsx';
+import AdminDashboardSkeleton from './adminDashboard/AdminDashboardSkeleton.jsx';
+
+const SelectBus = lazy(() => import('./components/SelectBus.jsx'));
+const AdminDashboard = lazy(() => import('./adminDashboard/AdminDashboard.jsx'));
 
 function App() {
   return (
@@ -13,15 +16,20 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/map" element={<MapComponent />} />
+
           <Route path="/location" element={
             <ProtectedRoute role="driver">
-              <SelectBus />
+              <Suspense fallback={<SelectBusSkeleton />}>
+                <SelectBus />
+              </Suspense>
             </ProtectedRoute>
           } />
           <Route path="/admin" element={
             <ProtectedRoute role="admin">
-              <AdminDashboard />
+              <Suspense fallback={<AdminDashboardSkeleton />}>
+
+                <AdminDashboard />
+              </Suspense>
             </ProtectedRoute>
           } />
         </Routes>

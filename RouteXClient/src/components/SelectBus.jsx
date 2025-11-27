@@ -5,6 +5,74 @@ import server from '../utils/backendServer'
 import { useNavigate } from 'react-router-dom'
 import { useSearch } from '../utils/useSearch'
 import formatUpdateTime from '../utils/formatUpdateTime'
+import Navbar from './Navbar'
+import SelectBusSkeleton from './SelectBusSkeleton'
+
+function TransmittingPage({ selectedRoute, currentLocation, socketIdRef, stopTransmission }) {
+  return (
+    <div className="max-w-2xl mx-auto mt-10">
+      <div className="bg-linear-to-br from-purple-900 to-gray-900 border-2 border-purple-500 rounded-lg p-8 shadow-2xl">
+        {/* Status Indicator */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+          <h2 className="text-2xl font-bold text-white">Live Transmission Active</h2>
+        </div>
+
+        {/* Route Info */}
+        <div className="bg-gray-800 rounded-lg p-6 mb-6 border border-gray-700">
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <p className="text-gray-400 text-sm mb-1">Route Number</p>
+              <p className="text-white font-bold text-lg">{selectedRoute?.routeNo}</p>
+            </div>
+            <div>
+              <p className="text-gray-400 text-sm mb-1">Bus Number</p>
+              <p className="text-white font-bold text-lg">{selectedRoute.bus?.busNo}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Location Info */}
+        <div className="bg-gray-800 rounded-lg p-6 mb-6 border border-gray-700">
+          <h3 className="text-white font-semibold mb-4">Current Location</h3>
+          {currentLocation ? (
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-gray-400 text-xs mb-1">Latitude</p>
+                <p className="text-green-400 font-mono text-sm">{currentLocation.lat.toFixed(6)}</p>
+              </div>
+              <div>
+                <p className="text-gray-400 text-xs mb-1">Longitude</p>
+                <p className="text-green-400 font-mono text-sm">{currentLocation.lng.toFixed(6)}</p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-yellow-400">Waiting for location...</p>
+          )}
+        </div>
+
+        {/* Connection Info */}
+        <div className="bg-gray-800 rounded-lg p-6 mb-6 border border-gray-700">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+            <p className="text-gray-300">
+              <span className="text-gray-400">Socket ID:</span> <span className="font-mono text-sm">{socketIdRef.current?.substring(0, 8)}...</span>
+            </p>
+          </div>
+          <p className="text-gray-400 text-sm mt-3">Your real-time location is being transmitted to the server.</p>
+        </div>
+
+        {/* Stop Transmission Button */}
+        <button
+          onClick={stopTransmission}
+          className="w-full px-4 py-3 bg-linear-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold rounded-lg transition-all duration-200 cursor-pointer"
+        >
+          Stop Transmission
+        </button>
+      </div>
+    </div>
+  )
+}
 
 function SelectBus() {
   const navigate = useNavigate()
@@ -50,6 +118,7 @@ function SelectBus() {
     if (navigator.geolocation) {
       watchIdRef.current = navigator.geolocation.watchPosition(
         (position) => {
+          setError(null);
           const { latitude, longitude } = position.coords
           setCurrentLocation({ lat: latitude, lng: longitude })
           console.log('Current location:', { lat: latitude, lng: longitude, time: formatUpdateTime(Date.now()) })
@@ -94,44 +163,45 @@ function SelectBus() {
 
   // Filter routes: exclude busNo === -1 and apply search
   const { filteredItems: filteredRoutes } = useSearch(searchQuery, routes, ['busNo', 'routeNo', 'stops'])
+  if (routes.length === 0) {
+    <div className="text-center py-12 bg-gray-800 rounded-lg border border-gray-700">
+      <svg className="w-16 h-16 mx-auto text-gray-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+      <p className="text-gray-400">No routes available</p>
+    </div>
+    return;
+  }
+
+
+  if (transmitting) {
+    return (<>
+      <Navbar text={"logout"} handleClick={handleLogout} />
+      <TransmittingPage selectedRoute={selectedRoute} socketIdRef={socketIdRef} currentLocation={currentLocation} stopTransmission={stopTransmission} />
+    </>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900">
-      {/* Header */}
-      <div className="sticky top-0 z-50 bg-gray-800 shadow-lg border-b border-purple-500">
-        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-white">
-            Route<span className="text-red-600">X</span> Drivers
-          </h1>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition duration-200 cursor-pointer"
-          >
-            Logout
-          </button>
+      <Navbar text={"logout"} handleClick={handleLogout} />
+      {error && (
+        <div className="mb-6 p-4 bg-red-900 border border-red-700 text-red-100 rounded-lg flex items-center gap-2">
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+          </svg>
+          <span>{error}</span>
         </div>
-      </div>
-      <div className="container mx-auto px-6 py-10">
-        {/* Error message */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-900 border border-red-700 text-red-100 rounded-lg flex items-center gap-2">
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-            </svg>
-            <span>{error}</span>
-          </div>
-        )}
+      )}
 
-        {!transmitting ? (
-          <>
-            {/* Available Routes Section */}
+      {
+        loading ? <SelectBusSkeleton /> :
+
+          <main className="container mx-auto px-6 py-10">
             <div className="mb-10">
               <div className="flex items-center gap-3 mb-6">
                 <h2 className="text-2xl font-bold text-white">Select your bus number</h2>
-                {loading && <span className="text-gray-400 text-sm">(Loading...)</span>}
               </div>
-
-              {/* Search Bar */}
               <div className="mb-6">
                 <div className="relative">
                   <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -147,21 +217,7 @@ function SelectBus() {
                 </div>
               </div>
 
-              {loading ? (
-                <div className="flex items-center justify-center py-12">
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-                    <p className="text-gray-400">Fetching routes from server...</p>
-                  </div>
-                </div>
-              ) : routes.length === 0 ? (
-                <div className="text-center py-12 bg-gray-800 rounded-lg border border-gray-700">
-                  <svg className="w-16 h-16 mx-auto text-gray-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  <p className="text-gray-400">No routes available</p>
-                </div>
-              ) : filteredRoutes.length === 0 ? (
+              {filteredRoutes.length === 0 ? (
                 <div className="text-center py-12 bg-gray-800 rounded-lg border border-gray-700">
                   <svg className="w-16 h-16 mx-auto text-gray-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -242,73 +298,10 @@ function SelectBus() {
                 </div>
               )}
             </div>
-          </>
-        ) : (
-          /* Transmission Active Screen */
-          <div className="max-w-2xl mx-auto">
-            <div className="bg-linear-to-br from-purple-900 to-gray-900 border-2 border-purple-500 rounded-lg p-8 shadow-2xl">
-              {/* Status Indicator */}
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                <h2 className="text-2xl font-bold text-white">Live Transmission Active</h2>
-              </div>
+          </main>
+      }
 
-              {/* Route Info */}
-              <div className="bg-gray-800 rounded-lg p-6 mb-6 border border-gray-700">
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <p className="text-gray-400 text-sm mb-1">Route Number</p>
-                    <p className="text-white font-bold text-lg">{selectedRoute?.routeNo}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-400 text-sm mb-1">Bus Number</p>
-                    <p className="text-white font-bold text-lg">{selectedRoute.bus?.busNo}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Location Info */}
-              <div className="bg-gray-800 rounded-lg p-6 mb-6 border border-gray-700">
-                <h3 className="text-white font-semibold mb-4">Current Location</h3>
-                {currentLocation ? (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-gray-400 text-xs mb-1">Latitude</p>
-                      <p className="text-green-400 font-mono text-sm">{currentLocation.lat.toFixed(6)}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-400 text-xs mb-1">Longitude</p>
-                      <p className="text-green-400 font-mono text-sm">{currentLocation.lng.toFixed(6)}</p>
-                    </div>
-                  </div>
-                ) : (
-                  <p className="text-yellow-400">Waiting for location...</p>
-                )}
-              </div>
-
-              {/* Connection Info */}
-              <div className="bg-gray-800 rounded-lg p-6 mb-6 border border-gray-700">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <p className="text-gray-300">
-                    <span className="text-gray-400">Socket ID:</span> <span className="font-mono text-sm">{socketIdRef.current?.substring(0, 8)}...</span>
-                  </p>
-                </div>
-                <p className="text-gray-400 text-sm mt-3">Your real-time location is being transmitted to the server.</p>
-              </div>
-
-              {/* Stop Transmission Button */}
-              <button
-                onClick={stopTransmission}
-                className="w-full px-4 py-3 bg-linear-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold rounded-lg transition-all duration-200 cursor-pointer"
-              >
-                Stop Transmission
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
+    </div >
   )
 }
 
