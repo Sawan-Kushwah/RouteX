@@ -84,8 +84,8 @@ function FirstCenter({ userPosition, hasCentered, setHasCentered }) {
     const map = useMap();
 
     useEffect(() => {
-        if (!hasCentered && userPosition.lat !== 0 && userPosition.lng !== 0) {
-            map.setView([userPosition.lat, userPosition.lng], 14);
+        if (!hasCentered && userPosition.lat !== 22.597843 && userPosition.lng !== 75.787305) {
+            map.setView([userPosition.lat, userPosition.lng], 12);
             setHasCentered(true);
         }
 
@@ -102,7 +102,10 @@ function FirstCenter({ userPosition, hasCentered, setHasCentered }) {
 
 const MapComponent = () => {
     const [buses, setBuses] = useState([]);
-    const [userPosition, setuserPosition] = useState({ lat: 0, lng: 0 });
+
+
+
+    const [userPosition, setuserPosition] = useState({ lat: 22.597843, lng: 75.787305 });
     const [destinationLocation] = useState({ lat: 22.597842505120706, lng: 75.78730493840565 });
     const [hasCentered, setHasCentered] = useState(false);
 

@@ -4,11 +4,11 @@ import axios from 'axios'
 import server from '../utils/backendServer'
 import { useNavigate } from 'react-router-dom'
 import adminProfile from '../assets/adminProfile.png'
-
-import RouteForm from './RouteForm'
-import BusForm from './BusForm'
-import DriverForm from './DriverForm'
 import DashboardSkeleton from './DashboardSkeleton'
+
+const RouteForm = lazy(() => import('./RouteForm'))
+const BusForm = lazy(() => import('./BusForm'))
+const DriverForm = lazy(() => import('./DriverForm'))
 
 const StagesItem = lazy(() => import('./StagesItem'))
 const BusDashboard = lazy(() => import('./BusDashboard'))
@@ -167,6 +167,7 @@ export default function AdminDashboard() {
 
 
   const handleLogout = async () => {
+    console.log("logoutttttttttt")
     await axios.get(`${server}/user/logout`, { withCredentials: true });
     navigate('/')
   }
@@ -334,14 +335,14 @@ export default function AdminDashboard() {
                 </button>
                 {isProfileMenuOpen && (
                   <>
-                    <ul className="absolute right-0 w-56 p-2 mt-2 space-y-2 text-gray-600 bg-white border border-gray-100 rounded-md shadow-md dark:border-gray-700 dark:text-gray-300 dark:bg-gray-700">
+                    <ul className="absolute right-0 w-56 p-2 mt-2 space-y-2 text-gray-600 bg-white border border-gray-100 rounded-md shadow-md dark:border-gray-700 dark:text-gray-300 dark:bg-gray-700 z-40">
                       <li className="flex"><a className="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200" href="#">Sawan</a></li>
                       <li className="flex">
                         <button className="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md text-red-500 hover:bg-gray-100 hover:text-red-800 dark:hover:bg-gray-800 dark:hover:text-red-200" href="#" onClick={handleLogout}>Log out</button>
                       </li>
                     </ul>
                     <div
-                      className="fixed inset-0 z-40"
+                      className="fixed inset-0 z-20"
                       onClick={() => setIsProfileMenuOpen(false)}
                     ></div>
                   </>
@@ -377,25 +378,31 @@ export default function AdminDashboard() {
 
 
             {showRouteForm && (
-              <RouteForm
-                onClose={() => setShowRouteForm(false)}
-                setRoutesDataChanged={setRoutesDataChanged}
-                availableBuses={inactiveBus}
-                setBusDataChanged={setBusDataChanged}
-              />
+              <Suspense fallback={<>Loading...</>}>
+                <RouteForm
+                  onClose={() => setShowRouteForm(false)}
+                  setRoutesDataChanged={setRoutesDataChanged}
+                  availableBuses={inactiveBus}
+                  setBusDataChanged={setBusDataChanged}
+                />
+              </Suspense>
             )}
             {showBusForm && (
-              <BusForm
-                onClose={() => setShowBusForm(false)}
-                setBusDataChanged={setBusDataChanged}
-                setRoutesDataChanged={setRoutesDataChanged}
-              />
+              <Suspense fallback={<>Loading...</>}>
+                <BusForm
+                  onClose={() => setShowBusForm(false)}
+                  setBusDataChanged={setBusDataChanged}
+                  setRoutesDataChanged={setRoutesDataChanged}
+                />
+              </Suspense>
             )}
             {showDriverForm && (
-              <DriverForm
-                onClose={() => setShowDriverForm(false)}
-                setDriverDataChanged={setDriverDataChanged}
-              />
+              <Suspense fallback={<>Loading...</>}>
+                <DriverForm
+                  onClose={() => setShowDriverForm(false)}
+                  setDriverDataChanged={setDriverDataChanged}
+                />
+              </Suspense>
             )}
 
             {loading && <DashboardSkeleton />}
