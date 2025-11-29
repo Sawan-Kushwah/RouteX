@@ -196,8 +196,6 @@ const searchRoutes = async (req, res) => {
     try {
         const { q  , limit } = req.query;
         const fields = ["stops","busNo","routeNo"]
-        console.log(fields)
-
         const busFields =  fields.filter(f =>( f == "busNo" || f == 'numberPlate' || f == 'status'))
         const selectBusField = busFields.join(" ")
         const routeFields = fields.filter(f => f != "busNo" && f != 'numberPlate' &&  f != 'status')
@@ -223,8 +221,6 @@ const searchRoutes = async (req, res) => {
         .select(selectRouteField)
         .populate({ path: "bus", select: selectBusField })
         .limit(limit);
-
-        console.log("respons => ", routes)
 
         res.status(200).json({
             message: "Search completed successfully",

@@ -116,7 +116,7 @@ const MapComponent = () => {
                     </Control> */}
 
                     <Control position="topleft">
-                        <RouteSearch url={routesEndpoint} limit={10} fields={requiredFildes} />
+                        <RouteSearch url={routesEndpoint} limit={10} fields={requiredFildes} delay={1000} />
                     </Control>
                     <Control position="bottomright">
                         <div className="bg-gray-900/90 backdrop-blur-xl border border-purple-400/30 rounded-lg px-4 py-3 shadow-lg">

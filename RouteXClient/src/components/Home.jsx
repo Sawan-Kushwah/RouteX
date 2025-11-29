@@ -25,13 +25,14 @@ function Home() {
         }
       }
     } catch (error) {
+      console.log(error)
       return null
     }
   }
 
   useEffect(() => {
     verifyToken();
-  }, [])
+  })
 
   const handleLoginSuccess = () => {
     setIsLoginOpen(false)

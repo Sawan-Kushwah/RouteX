@@ -18,7 +18,6 @@ export default function useRouteSearch(
 
 
   useEffect(() => {
-    console.log("query in useSearch", query)
   if (!query.trim()) {
     setResult([]); // Clear results if query is empty
     return;
@@ -34,7 +33,6 @@ export default function useRouteSearch(
       };
 
       const response = await axios.get(url, { params });
-      // console.log(response.data)
       setResult(response.data); // Set result data on successful response
     } catch (err) {
       console.error('Search error:', err); // Handle any errors
@@ -47,7 +45,6 @@ export default function useRouteSearch(
   fetchData(); // Call the async function
 
 }, [query, fields, limit, url]); 
-console.log(result)
   
   return [result.routes, setQuery, loading];
 }

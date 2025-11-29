@@ -15,7 +15,7 @@ export function useSearch(searchQuery, items, searchFields = []) {
             const value = item[field]
             return value && value.toString().toLowerCase().includes(q)
         })
-    })
+    })  
 
     return { filteredItems }
 }
