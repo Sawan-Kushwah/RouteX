@@ -4,32 +4,15 @@ import { useState, useEffect, useRef } from 'react';
 import useRouteSearch from '../utils/useRouteSearch';
 
 
-export default function RouteSearch({ url, limit, fields , delay}) {
-
-    // jase he user type kare 
-    // -> two way binding the query 
-    // jase he user ruke foe 1 sec
-    // -> make API call and show suggestions
-    // jase he user Enter click ya search kare to 
-    // -> make API call and show result
-
-
+export default function SearchBar({ url, limit, fields, delay }) {
     const [inputQuery, setInputQuery] = useState('');
     const [isSearching, setIsSearching] = useState(false);
-    // when user clik search 
     const [showResults, setShowResults] = useState(false);
-    // user wait stop typing for a sec
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
-    // display this result 
-    // extract suggestions form this result
-    // for making API call use setQuery 
     const [result, setQuery] = useRouteSearch(url, fields, limit);
-
     const [displayRoute, setDisplayRoute] = useState({});
-    
     const inputRef = useRef();
-    // whenever 
     const debounceTimer = useRef(null);
 
     const getSuggestions = (data) => {
@@ -74,7 +57,7 @@ export default function RouteSearch({ url, limit, fields , delay}) {
 
 
     const hendleSuggestionClick = (index) => {
-        console.log("suggestion : ",index)
+        console.log("suggestion : ", index)
         inputRef.current.value = "";
         setDisplayRoute(result[index])
         setShowSuggestions(false);
@@ -106,7 +89,7 @@ export default function RouteSearch({ url, limit, fields , delay}) {
                     ref={inputRef}
                     placeholder="Search routes, stops, buses..."
                     value={inputQuery}
-                    
+
                     onChange={(e) => setInputQuery(e.target.value)}
                     onFocus={() => inputQuery && setShowResults(false)}
                     className="w-full px-4 py-3 pl-10 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-100 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-red-600 dark:ring-offset-red-800 transition font-medium"
@@ -122,9 +105,9 @@ export default function RouteSearch({ url, limit, fields , delay}) {
             {
                 showSuggestions &&
                 <div className='flex flex-wrap mt-2'>
-                    
+
                     {
-                        suggestions.map((item,index) => {
+                        suggestions.map((item, index) => {
                             return <div
                                 onClick={() => { hendleSuggestionClick(index) }}
                                 key={item[0]} className='bg-gray-700 px-2 py-1 w-full truncate rounded m-1 cursor-pointer'>{item.join(", ")}</div>
@@ -137,14 +120,14 @@ export default function RouteSearch({ url, limit, fields , delay}) {
                 <div className="w-full  max-w-md mx-auto rounded-2xl border border-gray-400 p-4 bg-gray-900 text-white">
 
                     {/* Bus Number */}
-                    {console.log("result => ",displayRoute)}
+                    {console.log("result => ", displayRoute)}
                     <div className="w-full bg-gray-800 border border-gray-500 rounded-xl py-2 text-center text-2xl font-semibold">
                         Bus No ⇒ {
-                        (displayRoute)? displayRoute.bus.busNo : "not found"
+                            (displayRoute) ? displayRoute.bus.busNo : "not found"
                         }
                     </div>
 
-                   
+
                     {/* Stops Heading */}
                     <div className="mt-4 border-t border-b border-gray-500 py-3 text-center text-xl font-semibold">
                         Stops
@@ -155,16 +138,16 @@ export default function RouteSearch({ url, limit, fields , delay}) {
                         {
                             console.log(displayRoute)
                         }
-                        { displayRoute && displayRoute.stops.length > 0 && 
-                        displayRoute.stops.map((stop, index) => (
-                            <div key={index} className=" text-lg truncate bg-gray-500 rounded px-7">
-                                {stop}
-                            </div>
-                        ))
+                        {displayRoute && displayRoute.stops.length > 0 &&
+                            displayRoute.stops.map((stop, index) => (
+                                <div key={index} className=" text-lg truncate bg-gray-500 rounded px-7">
+                                    {stop}
+                                </div>
+                            ))
                         }
                     </div>
                     <button
-                    className='w-full py-4 rounded mt-3 text-center bg-blue-500 '
+                        className='w-full py-4 rounded mt-3 text-center bg-blue-500 '
                         onClick={() => setInputQuery("")}
                     >
                         close
