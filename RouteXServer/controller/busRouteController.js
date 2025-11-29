@@ -6,8 +6,8 @@ const getAllRoutes = async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-        const routes = await BusRoute.find({}).populate({ path: "bus", select: "busNo" })
-        const inactiveBuses = await Bus.find({ status: 'inactive' }).select("_id busNo");
+        const routes = await BusRoute.find({}).sort({ routeNo: 1 }).populate({ path: "bus", select: "busNo" })
+        const inactiveBuses = await Bus.find({ status: 'inactive' }).sort({ busNo: 1 }).select("_id busNo");
         let routeHaveBus = 0;
         routes.forEach((route) => {
             if (route.bus) {

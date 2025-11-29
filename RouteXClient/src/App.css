@@ -5,9 +5,26 @@
   width: 80%;
 }
 
-#map{
+#map {
   height: 100vh;
   width: 100vw;
+}
+
+@media (max-width: 640px) {
+  .leaflet-bottom {
+    bottom: 45px !important;
+  }
+
+  .hideMobile {
+    display: none !important;
+  }
+  .mobileInfoControl{
+    margin-bottom: 0px !important;
+  }
+  .mobileInfoContainer{
+    min-width: auto !important;
+    padding: 10px !important;
+  }
 }
 
 @keyframes popup {
@@ -15,6 +32,7 @@
     opacity: 0;
     transform: translateY(-50%) scale(0.95);
   }
+
   100% {
     opacity: 1;
     transform: translateY(-50%) scale(1);

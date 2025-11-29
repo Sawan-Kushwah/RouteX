@@ -1,15 +1,20 @@
-import { useState } from 'react'
+
+import { lazy, Suspense, useState } from 'react'
 import { useSearch } from '../utils/useSearch'
-import BusDashboard from './BusDashboard'
-import RoutesDashboard from './RoutesDashboard'
-import DriverDashboard from './DriverDashboard'
-import RouteForm from './RouteForm'
-import BusForm from './BusForm'
 import axios from 'axios'
 import server from '../utils/backendServer'
 import { useNavigate } from 'react-router-dom'
-import DriverForm from './DriverForm'
-import StagesItem from '../components/StagesItem'
+import adminProfile from '../assets/adminProfile.png'
+import DashboardSkeleton from './DashboardSkeleton'
+
+const RouteForm = lazy(() => import('./RouteForm'))
+const BusForm = lazy(() => import('./BusForm'))
+const DriverForm = lazy(() => import('./DriverForm'))
+
+const StagesItem = lazy(() => import('./StagesItem'))
+const BusDashboard = lazy(() => import('./BusDashboard'))
+const RoutesDashboard = lazy(() => import('./RoutesDashboard'))
+const DriverDashboard = lazy(() => import('./DriverDashboard'))
 
 
 
@@ -17,7 +22,7 @@ export default function AdminDashboard() {
   const navigate = useNavigate()
   const [dark, setDark] = useState(false)
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false)
-  const [isNotificationsMenuOpen, setIsNotificationsMenuOpen] = useState(false)
+  // const [isNotificationsMenuOpen, setIsNotificationsMenuOpen] = useState(false)
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
   const [showBusDashboard, setShowBusDashboard] = useState(false)
   const [showDriverDashboard, setShowDriverDashboard] = useState(false)
@@ -34,15 +39,17 @@ export default function AdminDashboard() {
   const [busDataChanged, setBusDataChanged] = useState(false);
   const [routesDataChanged, setRoutesDataChanged] = useState(true);
   const [routeHaveBus, setRouteHaveBus] = useState();
- 
+
   const [buses, setBuses] = useState([])
   const [drivers, setDrivers] = useState([])
   const [routes, setRoutes] = useState([])
+  const [loading, setLoading] = useState(false)
 
 
   async function fetchRoutes() {
     console.log("fetching route")
     try {
+      setLoading(true);
       const response = await axios.get(`${server}/routes/getAllRoutes`);
       setRoutes(response.data.routes || []);
       setInactiveBus(response.data.inactiveBuses || []);
@@ -50,6 +57,8 @@ export default function AdminDashboard() {
       setRoutesDataChanged(false);
     } catch (error) {
       console.error("Error fetching routes:", error);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -57,6 +66,7 @@ export default function AdminDashboard() {
   async function fetchBuses() {
     console.log("fetching bus")
     try {
+      setLoading(true);
       const response = await axios.get(`${server}/bus/getAllBuses`);
       setBuses(response.data.buses || []);
       setBusDataChanged(false);
@@ -64,6 +74,8 @@ export default function AdminDashboard() {
       setInactiveBusCount(response.data.inactiveBusCount);
     } catch (error) {
       console.error("Error fetching buses:", error);
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -71,11 +83,14 @@ export default function AdminDashboard() {
   async function fetchDrivers() {
     console.log('fetching driver')
     try {
+      setLoading(true);
       const response = await axios.get(`${server}/driver/getAllDrivers`)
       setDrivers(response.data.drivers || [])
       setDriverDataChanged(false);
     } catch (error) {
       console.error('Error fetching drivers:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -84,6 +99,7 @@ export default function AdminDashboard() {
     setShowRouteDashboard(true);
     setShowBusDashboard(false);
     setShowDriverDashboard(false);
+    setIsSideMenuOpen(false);
     if (routes.length === 0 || routesDataChanged) {
       fetchRoutes();
       setRoutesDataChanged(false);
@@ -94,6 +110,7 @@ export default function AdminDashboard() {
     setShowBusDashboard(true);
     setShowDriverDashboard(false);
     setShowRouteDashboard(false);
+    setIsSideMenuOpen(false);
     if (buses.length === 0 || busDataChanged) {
       fetchBuses();
       setBusDataChanged(false)
@@ -105,6 +122,7 @@ export default function AdminDashboard() {
     setShowDriverDashboard(true);
     setShowBusDashboard(false);
     setShowRouteDashboard(false);
+    setIsSideMenuOpen(false);
     if (drivers.length === 0 || driverDataChanged) {
       fetchDrivers()
       setDriverDataChanged(false)
@@ -150,15 +168,30 @@ export default function AdminDashboard() {
 
 
   const handleLogout = async () => {
+    console.log("logoutttttttttt")
     await axios.get(`${server}/user/logout`, { withCredentials: true });
     navigate('/')
   }
 
   return (
-    <div className={"flex h-screen bg-gray-50 " + (dark ? 'theme-dark dark:bg-gray-900' : '') + (isSideMenuOpen ? ' overflow-hidden' : '')}>
-      <aside className="z-20 hidden w-64 overflow-y-auto bg-white dark:bg-gray-800 md:block shrink-0">
+    <div className={"flex flex-col md:flex-row min-h-screen bg-gray-50 "
+      + (dark ? 'theme-dark dark:bg-gray-900' : '')
+      + (isSideMenuOpen ? ' overflow-hidden' : '')}>
+
+      <aside className={
+        `z-40 fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 transform 
+   ${isSideMenuOpen ? 'translate-x-0' : '-translate-x-full'} 
+   transition-transform duration-300 ease-in-out 
+   md:relative md:translate-x-0 md:block md:z-20 overflow-y-auto`
+      }>
+
+
         <div className="py-4 text-gray-500 dark:text-gray-400">
-          <a className="ml-6 text-lg font-bold text-gray-800 dark:text-gray-200" href="#">Route<span className='text-red-600'>X</span></a>
+          <div className='flex justify-between items-center'>
+
+            <a className="ml-6 text-lg font-bold text-gray-800 dark:text-gray-200" href="#">Route<span className='text-red-600'>X</span></a>
+            <button onClick={() => setIsSideMenuOpen(false)} className="text-gray-200 hover:text-gray-700 text-2xl pr-3 sm:hidden">x</button>
+          </div>
           <ul className="mt-6">
             <li className="relative px-6 py-3">
               <span className={`absolute ${showRouteDashboard ? '' : 'hidden'} inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg`} aria-hidden="true"></span>
@@ -203,17 +236,31 @@ export default function AdminDashboard() {
             {/* other sidebar items omitted for brevity, kept in original project if needed */}
           </ul>
           <div className="px-6 my-6">
-            <button onClick={handleLogout} className="flex items-center justify-between w-full px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-red-600 border border-transparent rounded-lg active:bg-red-600 hover:bg-red-700 focus:outline-none focus:shadow-outline-red cursor-pointer">
-              logout
-              <span className="ml-2" aria-hidden="true">+</span>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-between px-4 py-2 text-sm font-semibold 
+             text-white bg-red-600 rounded-lg shadow-md 
+             hover:bg-red-700 active:bg-red-800 
+             transition-all duration-200 cursor-pointer 
+             hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-400"
+            >
+              Logout
+              <span className="ml-2 text-lg font-bold">⮞</span>
             </button>
           </div>
         </div>
       </aside>
 
+      {isSideMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden transition-opacity duration-300 opacity-40"
+          onClick={() => setIsSideMenuOpen(false)}
+        ></div>
+      )}
+
       <div className="flex flex-col flex-1 w-full">
-        <header className="z-10 py-4 bg-white shadow-md dark:bg-gray-800">
-          <div className="container flex items-center justify-between h-full px-6 mx-auto text-purple-600 dark:text-purple-300">
+        <header className="z-10 py-4 bg-white shadow-md dark:bg-gray-800 w-full">
+          <div className="container flex items-center justify-between h-full sm:px-6 px-3 mx-auto text-purple-600 dark:text-purple-300">
             <button className="p-1 mr-5 -ml-1 rounded-md md:hidden focus:outline-none focus:shadow-outline-purple" onClick={() => setIsSideMenuOpen(!isSideMenuOpen)} aria-label="Menu">
               <svg className="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd"></path>
@@ -253,7 +300,7 @@ export default function AdminDashboard() {
                 </button>
               </li>
 
-              <li className="relative">
+              {/* <li className="relative">
                 <button className="relative align-middle rounded-md focus:outline-none focus:shadow-outline-purple" onClick={() => setIsNotificationsMenuOpen(!isNotificationsMenuOpen)} aria-label="Notifications">
                   <svg className="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path>
@@ -281,18 +328,25 @@ export default function AdminDashboard() {
                     </li>
                   </ul>
                 )}
-              </li>
+              </li> */}
 
               <li className="relative">
                 <button className="align-middle rounded-full focus:shadow-outline-purple focus:outline-none" onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)} aria-label="Account">
-                  <img className="object-cover w-8 h-8 rounded-full" src="https://images.unsplash.com/photo-1502378735452-bc7d86632805?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=200&fit=max&s=aa3a807e1bbdfd4364d1f449eaa96d82" alt="" aria-hidden="true" />
+                  <img className="object-cover w-8 h-8 rounded-full" src={adminProfile} alt="" aria-hidden="true" />
                 </button>
                 {isProfileMenuOpen && (
-                  <ul className="absolute right-0 w-56 p-2 mt-2 space-y-2 text-gray-600 bg-white border border-gray-100 rounded-md shadow-md dark:border-gray-700 dark:text-gray-300 dark:bg-gray-700">
-                    <li className="flex"><a className="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200" href="#">Profile</a></li>
-                    <li className="flex"><a className="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200" href="#">Settings</a></li>
-                    <li className="flex"><a className="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200" href="#">Log out</a></li>
-                  </ul>
+                  <>
+                    <ul className="absolute right-0 w-56 p-2 mt-2 space-y-2 text-gray-600 bg-white border border-gray-100 rounded-md shadow-md dark:border-gray-700 dark:text-gray-300 dark:bg-gray-700 z-40">
+                      <li className="flex"><a className="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200" href="#">Sawan</a></li>
+                      <li className="flex">
+                        <button className="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md text-red-500 hover:bg-gray-100 hover:text-red-800 dark:hover:bg-gray-800 dark:hover:text-red-200" href="#" onClick={handleLogout}>Log out</button>
+                      </li>
+                    </ul>
+                    <div
+                      className="fixed inset-0 z-20"
+                      onClick={() => setIsProfileMenuOpen(false)}
+                    ></div>
+                  </>
                 )}
               </li>
             </ul>
@@ -303,94 +357,120 @@ export default function AdminDashboard() {
 
 
 
-        <main className="h-full overflow-y-auto bg-gray-900 py-6 ">
+        <main className="h-full overflow-y-auto bg-gray-900 py-4 px-2 sm:px-6">
 
-          <div className="container px-6 mx-auto grid">
+          <div className="container sm:px-6 px-0 mx-auto grid">
             <h2 className="mb-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">Manage {showBusDashboard ? 'Buses' : showDriverDashboard ? 'Driver' : 'Routes'}</h2>
 
-            <button onClick={showBusDashboard ? () => setShowBusForm(true) : showDriverDashboard ? () => setShowDriverForm(true) : () => setShowRouteForm(true)} className="flex items-center justify-between p-4 mb-8 text-sm font-semibold text-purple-100 bg-purple-600 rounded-lg shadow-md focus:outline-none focus:shadow-outline-purple cursor-pointer">
-              <div className="flex items-center">
-                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                <span>Add New {showBusDashboard ? 'Bus' : showDriverDashboard ? 'Driver' : 'Route'}</span>
-              </div>
-              <span className="text-xl">
-                +
-              </span>
+            <button
+              onClick={
+                showBusDashboard
+                  ? () => setShowBusForm(true)
+                  : showDriverDashboard
+                    ? () => setShowDriverForm(true)
+                    : () => setShowRouteForm(true)
+              }
+              className="flex items-center justify-between p-2 sm:p-4 px-3 mb-8 text-sm sm:text-base font-semibold text-purple-100 bg-purple-600 rounded-lg shadow-md focus:outline-none focus:shadow-outline-purple cursor-pointer w-full sm:w-auto">
+              <div className="flex items-center"> <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg> <span>Add New {showBusDashboard ? 'Bus' : showDriverDashboard ? 'Driver' : 'Route'}</span> </div>
+
+              {/* Plus icon – stays big on all screens */}
+              <span className="text-lg sm:text-xl font-bold">+</span>
             </button>
 
+
             {showRouteForm && (
-              <RouteForm
-                onClose={() => setShowRouteForm(false)}
-                setRoutesDataChanged={setRoutesDataChanged}
-                availableBuses={inactiveBus}
-                setBusDataChanged={setBusDataChanged}
-              />
+              <Suspense fallback={<>Loading...</>}>
+                <RouteForm
+                  onClose={() => setShowRouteForm(false)}
+                  setRoutesDataChanged={setRoutesDataChanged}
+                  availableBuses={inactiveBus}
+                  setBusDataChanged={setBusDataChanged}
+                />
+              </Suspense>
             )}
             {showBusForm && (
-              <BusForm
-                onClose={() => setShowBusForm(false)}
-                setBusDataChanged={setBusDataChanged}
-                setRoutesDataChanged={setRoutesDataChanged}
-              />
+              <Suspense fallback={<>Loading...</>}>
+                <BusForm
+                  onClose={() => setShowBusForm(false)}
+                  setBusDataChanged={setBusDataChanged}
+                  setRoutesDataChanged={setRoutesDataChanged}
+                />
+              </Suspense>
             )}
             {showDriverForm && (
-              <DriverForm
-                onClose={() => setShowDriverForm(false)}
-                setDriverDataChanged={setDriverDataChanged}
-              />
+              <Suspense fallback={<>Loading...</>}>
+                <DriverForm
+                  onClose={() => setShowDriverForm(false)}
+                  setDriverDataChanged={setDriverDataChanged}
+                />
+              </Suspense>
             )}
+
+            {loading && <DashboardSkeleton />}
             {
               showBusDashboard && (
                 <>
-                  <StagesItem
-                    items={[
-                      { heading: "Total Buses", value: buses.length, icon: "users", color: "orange" },
-                      { heading: "Buses Active on Route", value: activeBusCount, icon: "wallet", color: "green" },
-                      { heading: "Buses Inactive on Route", value: inactiveBusCount, icon: "cart", color: "blue" },
-                      { heading: "Maintenance", value: buses.length - (activeBusCount + inactiveBusCount), icon: "chat", color: "teal" },
-                    ]}
-                  />
-                  <BusDashboard filteredBuses={filteredBuses} setBusDataChanged={setBusDataChanged} setRoutesDataChanged={setRoutesDataChanged} />
+                  <Suspense fallback={<DashboardSkeleton />}>
+                    <StagesItem
+                      items={[
+                        { heading: "Total Buses", value: buses.length, icon: "users", color: "orange" },
+                        { heading: "Buses Active on Route", value: activeBusCount, icon: "wallet", color: "green" },
+                        { heading: "Buses Inactive on Route", value: inactiveBusCount, icon: "cart", color: "blue" },
+                        { heading: "Maintenance", value: buses.length - (activeBusCount + inactiveBusCount), icon: "chat", color: "teal" },
+                      ]}
+                    />
+                  </Suspense>
+                  <Suspense fallback={<DashboardSkeleton />}>
+                    <BusDashboard filteredBuses={filteredBuses} setBusDataChanged={setBusDataChanged} setRoutesDataChanged={setRoutesDataChanged} />
+                  </Suspense>
                 </>
               )
             }
             {
               showDriverDashboard && (
                 <>
-                  <StagesItem
-                    items={[
-                      { heading: "Total Driver", value: drivers.length, icon: "users", color: "orange" },
-                      { heading: "Active Driver", value: 0, icon: "wallet", color: "green" },
-                      { heading: "Inactive Driver", value: 0, icon: "cart", color: "blue" },
-                      { heading: "Maintenance", value: 0, icon: "chat", color: "teal" },
-                    ]}
-                  />
-
-                  <DriverDashboard filteredDrivers={filteredDrivers} setDriverDataChanged={setDriverDataChanged} />
+                  <Suspense fallback={<DashboardSkeleton />}>
+                    <StagesItem
+                      items={[
+                        { heading: "Total Driver", value: drivers.length, icon: "users", color: "orange" },
+                        { heading: "Active Driver", value: 0, icon: "wallet", color: "green" },
+                        { heading: "Inactive Driver", value: 0, icon: "cart", color: "blue" },
+                        { heading: "Maintenance", value: 0, icon: "chat", color: "teal" },
+                      ]}
+                    />
+                  </Suspense>
+                  <Suspense fallback={<DashboardSkeleton />}>
+                    <DriverDashboard filteredDrivers={filteredDrivers} setDriverDataChanged={setDriverDataChanged} />
+                  </Suspense>
                 </>
               )
             }
             {
               showRouteDashboard && (
                 <>
-                  <StagesItem
-                    items={[
-                      { heading: "Total Routes", value: routes.length, icon: "users", color: "orange" },
-                      { heading: "Routes have bus", value: routeHaveBus, icon: "wallet", color: "green" },
-                      { heading: "Routes doesn't have Buses", value: routes.length - routeHaveBus, icon: "cart", color: "blue" },
-                      { heading: "Total Available Buses", value: 0, icon: "chat", color: "teal" },
-                    ]}
-                  />
-                  <RoutesDashboard
-                    filteredRoutes={filteredRoutes}
-                    busData={buses}
-                    availableBuses={inactiveBus}
-                    setRoutesDataChanged={setRoutesDataChanged}
-                    setBusDataChanged={setBusDataChanged}
-                  />
+                  <Suspense fallback={<DashboardSkeleton />}>
+                    <StagesItem
+                      items={[
+                        { heading: "Total Routes", value: routes.length, icon: "users", color: "orange" },
+                        { heading: "Routes have bus", value: routeHaveBus, icon: "wallet", color: "green" },
+                        { heading: "Routes doesn't have Buses", value: routes.length - routeHaveBus, icon: "cart", color: "blue" },
+                        { heading: "Total Available Buses", value: 0, icon: "chat", color: "teal" },
+                      ]}
+                    />
+                  </Suspense>
+                  <Suspense fallback={<DashboardSkeleton />}>
+                    <RoutesDashboard
+                      filteredRoutes={filteredRoutes}
+                      busData={buses}
+                      availableBuses={inactiveBus}
+                      setRoutesDataChanged={setRoutesDataChanged}
+                      setBusDataChanged={setBusDataChanged}
+                    />
+                  </Suspense>
                 </>
               )
             }
+
           </div>
         </main>
 
