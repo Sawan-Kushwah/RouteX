@@ -194,23 +194,33 @@ const getRouteById = async (req, res) => {
 
 const searchRoutes = async (req, res) => {
     try {
-        const { q } = req.query;
+        const { q  , limit } = req.query;
+        const fields = ["stops","busNo","routeNo"]
+        const busFields =  fields.filter(f =>( f == "busNo" || f == 'numberPlate' || f == 'status'))
+        const selectBusField = busFields.join(" ")
+        const routeFields = fields.filter(f => f != "busNo" && f != 'numberPlate' &&  f != 'status')
+        const selectRouteField = routeFields.join(" ")
+        
 
         if (!q || q.trim() === '') {
             return res.status(200).json({ message: "Empty search query", routes: [] });
         }
 
         const searchQuery = q.trim();
+        const routeNo = (!isNaN(searchQuery)) ? Number(searchQuery) : -1; 
         const searchRegex = new RegExp(searchQuery, 'i');
 
         // Search in route number, stops, or bus number
-        // give search result as select stoops busno initially bs 5 dena baki search ke according 
+        // give search result as select stops busno initially bs 5 dena baki search ke according 
         const routes = await BusRoute.find({
             $or: [
-                { routeNo: searchRegex },
+                { routeNo: routeNo },
                 { stops: { $in: [searchRegex] } }
             ]
-        }).populate({ path: "bus", select: "busNo" }).limit(10);
+        })
+        .select(selectRouteField)
+        .populate({ path: "bus", select: selectBusField })
+        .limit(limit);
 
         res.status(200).json({
             message: "Search completed successfully",

@@ -27,7 +27,6 @@ function App() {
           <Route path="/admin" element={
             <ProtectedRoute role="admin">
               <Suspense fallback={<AdminDashboardSkeleton />}>
-
                 <AdminDashboard />
               </Suspense>
             </ProtectedRoute>
