@@ -1,4 +1,4 @@
-import { MapContainer, Marker, Popup, TileLayer, Tooltip, useMap , ZoomControl } from 'react-leaflet'
+import { MapContainer, Marker, Popup, TileLayer, Tooltip, useMap, ZoomControl } from 'react-leaflet'
 import { Icon } from 'leaflet'
 import { useEffect, useState } from 'react'
 import Control from "react-leaflet-custom-control";
@@ -10,13 +10,14 @@ import bgi from '../assets/bgi.png'
 import centerPosition from '../assets/centerPosition.png'
 import '../App.css'
 import SearchBar from './SearchBar';
-import RouteSearch from './RouteSearchBar';
+import useIsMobile from '../utils/useIsMobile';
 
 
 function InfoBox({ buses, userPosition }) {
     return (
         <div
             className="mobileInfoContainer"
+
             style={{
                 background: "rgba(17,24,39,0.9)",
                 backdropFilter: "blur(12px)",
@@ -27,6 +28,7 @@ function InfoBox({ buses, userPosition }) {
             }}
         >
             <div
+                className='mobileInfoControl'
                 style={{
                     display: "flex",
                     alignItems: "center",
@@ -51,7 +53,7 @@ function InfoBox({ buses, userPosition }) {
                 </p>
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <div className='hideMobile' style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <div
                     style={{
                         width: "10px",
@@ -130,18 +132,12 @@ const MapComponent = () => {
     const [destinationLocation] = useState({ lat: 22.597842505120706, lng: 75.78730493840565 });
     const [hasCentered, setHasCentered] = useState(false);
 
+    const isMobile = useIsMobile();
 
-    /* SOCKET BUS UPDATES */
     useEffect(() => {
-        socket.on("busUpdate", (data) =>{ setBuses(data)});
-        socket.on("busStopped", ({busId}) => {
-                console.log(busId)
-                setBuses(prev => prev.filter(thisBus => thisBus.busId !== busId))
-        })
-        return () => socket.off("busUpdate");
+        socket.on("broadcastingBuses", (data) => setBuses(data));
+        return () => socket.off("broadcastingBuses");
     }, []);
-
-
 
 
     /* GEOLOCATION WATCH */
@@ -256,20 +252,20 @@ const MapComponent = () => {
                         </Popup>
                     </Marker>
 
-                    
-                    
+
+
                     <ZoomControl position="bottomleft" zoomInText="🧐" zoomOutText="🗺️" />
 
                     <Control position="bottomright">
                         <LegendBox />
                     </Control>
 
-                    <Control position="topright">
+                    <Control position={isMobile ? "bottomleft" : "topright"}>
                         <InfoBox buses={buses} userPosition={userPosition} />
                     </Control>
 
                     <Control position="topleft">
-                        <RouteSearch/>
+                        <SearchBar />
                     </Control>
 
                     {/* BUSES */}

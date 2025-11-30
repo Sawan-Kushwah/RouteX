@@ -49,11 +49,8 @@ function Home() {
   return (
     <>
       <div className="bg-gray-900 h-screen w-screen flex flex-col overflow-hidden">
-        {/* Header */}
         <Navbar text={"login"} handleClick={() => setIsLoginOpen(true)} />
-        {/* Main Content */}
         <main className="flex-1 relative w-full overflow-hidden">
-
 
           {!isLoginOpen &&
             <Suspense fallback={<MapComponentSkeleton />}>
