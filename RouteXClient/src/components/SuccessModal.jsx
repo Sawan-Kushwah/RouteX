@@ -1,4 +1,5 @@
-import React from 'react'
+import { useEffect } from "react"
+
 
 export default function SuccessModal({
     visible = true,
@@ -9,9 +10,9 @@ export default function SuccessModal({
     autoClose = false,
     autoCloseDelay = 3000
 }) {
-    if (!visible) return null
-
-    React.useEffect(() => {
+    
+    useEffect(() => {
+        if (!visible) return null
         if (autoClose && visible) {
             const timer = setTimeout(onClose, autoCloseDelay)
             return () => clearTimeout(timer)

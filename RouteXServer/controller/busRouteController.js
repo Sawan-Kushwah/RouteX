@@ -195,7 +195,7 @@ const getRouteById = async (req, res) => {
 const searchRoutes = async (req, res) => {
     try {
         const { q  , limit } = req.query;
-        const fields = ["stops","busNo","routeNo"]
+        const fields = ["stops","busNo","routeNo","updatedAt"]
         const busFields =  fields.filter(f =>( f == "busNo" || f == 'numberPlate' || f == 'status'))
         const selectBusField = busFields.join(" ")
         const routeFields = fields.filter(f => f != "busNo" && f != 'numberPlate' &&  f != 'status')

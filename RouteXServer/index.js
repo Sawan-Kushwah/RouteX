@@ -74,9 +74,20 @@ io.on("connection", (socket) => {
             busLocations.push(data);
         }
 
-
         io.emit("busUpdate", busLocations);
     })
+
+    // HANDLE STOP TRANSMISSION
+    socket.on("stopBusTransmission", ({ busId }) => {
+        console.log("Bus STOPPED transmitting:", busId);
+
+        // Remove bus from array
+        busLocations = busLocations.filter(bus => bus.busId !== busId);
+
+        // Notify frontend that this bus stopped
+        io.emit("busStopped", { busId });
+    });
+
 });
 
 httpServer.listen(port, () => {

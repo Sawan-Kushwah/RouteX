@@ -1,4 +1,4 @@
-import { MapContainer, Marker, Popup, TileLayer, Tooltip, useMap } from 'react-leaflet'
+import { MapContainer, Marker, Popup, TileLayer, Tooltip, useMap , ZoomControl } from 'react-leaflet'
 import { Icon } from 'leaflet'
 import { useEffect, useState } from 'react'
 import Control from "react-leaflet-custom-control";
@@ -9,8 +9,8 @@ import meIcon from '../assets/me.png'
 import bgi from '../assets/bgi.png'
 import centerPosition from '../assets/centerPosition.png'
 import '../App.css'
-import server from '../utils/backendServer'
 import SearchBar from './SearchBar';
+import RouteSearch from './RouteSearchBar';
 
 
 function InfoBox({ buses, userPosition }) {
@@ -133,7 +133,11 @@ const MapComponent = () => {
 
     /* SOCKET BUS UPDATES */
     useEffect(() => {
-        socket.on("busUpdate", (data) => setBuses(data));
+        socket.on("busUpdate", (data) =>{ setBuses(data)});
+        socket.on("busStopped", ({busId}) => {
+                console.log(busId)
+                setBuses(prev => prev.filter(thisBus => thisBus.busId !== busId))
+        })
         return () => socket.off("busUpdate");
     }, []);
 
@@ -203,9 +207,12 @@ const MapComponent = () => {
                     <img src={centerPosition} alt="Center on me" className='w-7 h-7' />
                 </button>
 
+
+
                 <MapContainer
                     center={[0, 0]}
                     zoom={16}
+                    zoomControl={false}
                     style={{ height: "100%", width: "100%" }}
                 >
 
@@ -249,6 +256,10 @@ const MapComponent = () => {
                         </Popup>
                     </Marker>
 
+                    
+                    
+                    <ZoomControl position="bottomleft" zoomInText="🧐" zoomOutText="🗺️" />
+
                     <Control position="bottomright">
                         <LegendBox />
                     </Control>
@@ -258,7 +269,7 @@ const MapComponent = () => {
                     </Control>
 
                     <Control position="topleft">
-                        <SearchBar url={`${server}/routes/searchRoutes`} limit={10} fields={['stops', 'busNo', 'routeNo']} delay={1000} />
+                        <RouteSearch/>
                     </Control>
 
                     {/* BUSES */}
