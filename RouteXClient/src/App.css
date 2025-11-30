@@ -18,10 +18,12 @@
   .hideMobile {
     display: none !important;
   }
-  .mobileInfoControl{
+
+  .mobileInfoControl {
     margin-bottom: 0px !important;
   }
-  .mobileInfoContainer{
+
+  .mobileInfoContainer {
     min-width: auto !important;
     padding: 10px !important;
   }
@@ -41,4 +43,43 @@
 
 .animate-popup {
   animation: popup 0.18s ease-out forwards;
+}
+
+/* Add this to your global CSS file (e.g., globals.css) */
+
+/* Define the animation */
+@keyframes rotate {
+  from {
+    --angle: 0deg;
+  }
+
+  to {
+    --angle: 360deg;
+  }
+}
+
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.search-border-wrapper {
+  position: relative;
+  overflow: hidden;
+  border: 2px solid transparent; 
+}
+
+.search-border-wrapper {
+  animation: rotate 4s linear infinite forwards;
+  border-image: conic-gradient(from var(--angle),
+      #ff0000,
+      #ffa500,
+      #ffff00,
+      #008000,
+      #0000ff,
+      #4b0082,
+      #ee82ee,
+      #ff0000) 1;
+  box-shadow: 0 0 15px rgba(0, 128, 255, 0.5);
 }

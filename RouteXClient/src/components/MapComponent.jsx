@@ -1,6 +1,7 @@
-import { MapContainer, Marker, Popup, TileLayer, Tooltip, useMap } from 'react-leaflet'
-import { Icon, Control } from 'leaflet'
+import { MapContainer, Marker, Popup, TileLayer, Tooltip, useMap, ZoomControl } from 'react-leaflet'
+import { Icon } from 'leaflet'
 import { useEffect, useState } from 'react'
+import Control from "react-leaflet-custom-control";
 import 'leaflet/dist/leaflet.css'
 import socket from '../utils/socket'
 import busIcon from '../assets/busicon.png'
@@ -8,74 +9,101 @@ import meIcon from '../assets/me.png'
 import bgi from '../assets/bgi.png'
 import centerPosition from '../assets/centerPosition.png'
 import '../App.css'
+import SearchBar from './SearchBar';
+import useIsMobile from '../utils/useIsMobile';
 
 
+function InfoBox({ buses, userPosition }) {
+    return (
+        <div
+            className="mobileInfoContainer"
 
-/* --------------------------- MAP CONTROLS --------------------------- */
-function MapControls({ buses, userPosition }) {
-    const map = useMap();
+            style={{
+                background: "rgba(17,24,39,0.9)",
+                backdropFilter: "blur(12px)",
+                border: "1px solid rgba(168,85,247,0.3)",
+                borderRadius: "8px",
+                padding: "12px 16px",
+                minWidth: "250px",
+            }}
+        >
+            <div
+                className='mobileInfoControl'
+                style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    marginBottom: "12px",
+                }}
+            >
+                <div
+                    style={{
+                        width: "10px",
+                        height: "10px",
+                        background: "#22c55e",
+                        borderRadius: "50%",
+                        animation: "pulse 2s infinite",
+                    }}
+                ></div>
+                <p style={{ color: "#d1d5db", fontSize: "14px", margin: 0 }}>
+                    <span style={{ fontWeight: 600, color: "white" }}>
+                        {buses.length}
+                    </span>{" "}
+                    buses tracking
+                </p>
+            </div>
 
-    useEffect(() => {
-        const InfoControl = Control.extend({
-            onAdd: function () {
-                const div = document.createElement('div');
-                div.className = 'leaflet-control-info';
-                div.innerHTML = `
-                    <div class="mobileInfoContainer" style="background: rgba(17,24,39,0.9); backdrop-filter: blur(12px); border: 1px solid rgba(168,85,247,0.3); border-radius: 8px; padding: 12px 16px; min-width: 250px;">
-                        <div class="mobileInfoControl" style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-                            <div style="width:10px;height:10px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite;"></div>
-                            <p style="color:#d1d5db;font-size:14px;margin:0;">
-                                <span style="font-weight:600;color:white;">${buses.length}</span> buses tracking
-                            </p>
-                        </div>
-                        <div class="hideMobile" style="display:flex;align-items:center;gap:8px;">
-                            <div style="width:10px;height:10px;background:#3b82f6;border-radius:50%;"></div>
-                            <p style="color:#d1d5db;font-size:14px;margin:0;">
-                                Your Location: <span style="font-weight:600;color:white;">${userPosition.lat.toFixed(4)}, ${userPosition.lng.toFixed(4)}</span>
-                            </p>
-                        </div>
-                    </div>
-                `;
-                return div;
-            }
-        });
-
-        const LegendControl = Control.extend({
-            onAdd: function () {
-                const div = document.createElement('div');
-                div.className = 'leaflet-control-legend';
-                div.innerHTML = `
-                    <div class="mobileInfoContainer" style="background:rgba(17,24,39,0.9);backdrop-filter:blur(12px);border:1px solid rgba(168,85,247,0.3);border-radius:8px;padding:12px 16px;">
-                        <div style="display:flex;flex-direction:column;gap:8px;">
-                            <div style="display:flex;align-items:center;gap:8px;">
-                                <img src="${meIcon}" style="width:20px;height:20px;" />
-                                <span style="color:#d1d5db;font-size:12px;">Your Location</span>
-                            </div>
-                            <div style="display:flex;align-items:center;gap:8px;">
-                                <img src="${busIcon}" style="width:20px;height:20px;" />
-                                <span style="color:#d1d5db;font-size:12px;">Bus Location</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                return div;
-            }
-        });
-
-        const infoControl = new InfoControl({ position: 'topright' });
-        const legendControl = new LegendControl({ position: 'bottomright' });
-
-        infoControl.addTo(map);
-        legendControl.addTo(map);
-
-        return () => {
-            map.removeControl(infoControl);
-            map.removeControl(legendControl);
-        };
-    }, [buses.length, userPosition]);
-
-    return null;
+            <div className='hideMobile' style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <div
+                    style={{
+                        width: "10px",
+                        height: "10px",
+                        background: "#3b82f6",
+                        borderRadius: "50%",
+                    }}
+                ></div>
+                <p style={{ color: "#d1d5db", fontSize: "14px", margin: 0 }}>
+                    Your Location:{" "}
+                    <span style={{ fontWeight: 600, color: "white" }}>
+                        {userPosition.lat.toFixed(4)}, {userPosition.lng.toFixed(4)}
+                    </span>
+                </p>
+            </div>
+        </div>
+    );
 }
+
+function LegendBox() {
+    return (
+        <div
+            className="mobileInfoContainer"
+            style={{
+                background: "rgba(17,24,39,0.9)",
+                backdropFilter: "blur(12px)",
+                border: "1px solid rgba(168,85,247,0.3)",
+                borderRadius: "8px",
+                padding: "12px 16px",
+            }}
+        >
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <img src={meIcon} style={{ width: 20, height: 20 }} />
+                    <span style={{ color: "#d1d5db", fontSize: "12px" }}>
+                        Your Location
+                    </span>
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <img src={busIcon} style={{ width: 20, height: 20 }} />
+                    <span style={{ color: "#d1d5db", fontSize: "12px" }}>
+                        Bus Location
+                    </span>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 
 
 
@@ -88,8 +116,6 @@ function FirstCenter({ userPosition, hasCentered, setHasCentered }) {
             map.setView([userPosition.lat, userPosition.lng], 12);
             setHasCentered(true);
         }
-
-        // store instance for external button
         window._leaflet_map = map;
     }, [userPosition, hasCentered]);
 
@@ -102,18 +128,15 @@ function FirstCenter({ userPosition, hasCentered, setHasCentered }) {
 
 const MapComponent = () => {
     const [buses, setBuses] = useState([]);
-
-
-
     const [userPosition, setuserPosition] = useState({ lat: 22.597843, lng: 75.787305 });
     const [destinationLocation] = useState({ lat: 22.597842505120706, lng: 75.78730493840565 });
     const [hasCentered, setHasCentered] = useState(false);
 
+    const isMobile = useIsMobile();
 
-    /* SOCKET BUS UPDATES */
     useEffect(() => {
-        socket.on("busUpdate", (data) => setBuses(data));
-        return () => socket.off("busUpdate");
+        socket.on("broadcastingBuses", (data) => setBuses(data));
+        return () => socket.off("broadcastingBuses");
     }, []);
 
 
@@ -180,9 +203,12 @@ const MapComponent = () => {
                     <img src={centerPosition} alt="Center on me" className='w-7 h-7' />
                 </button>
 
+
+
                 <MapContainer
                     center={[0, 0]}
                     zoom={16}
+                    zoomControl={false}
                     style={{ height: "100%", width: "100%" }}
                 >
 
@@ -194,7 +220,6 @@ const MapComponent = () => {
                         setHasCentered={setHasCentered}
                     />
 
-                    <MapControls buses={buses} userPosition={userPosition} />
 
                     <Marker position={[userPosition.lat, userPosition.lng]} icon={customUserLocationIcon}>
                         <Tooltip permanent direction="right" offset={[10, 0]}>
@@ -226,6 +251,23 @@ const MapComponent = () => {
                             </div>
                         </Popup>
                     </Marker>
+
+
+
+                    <ZoomControl position="bottomleft" zoomInText="🧐" zoomOutText="🗺️" />
+
+                    <Control position="bottomright">
+                        <LegendBox />
+                    </Control>
+
+                    <Control position={isMobile ? "bottomleft" : "topright"}>
+                        <InfoBox buses={buses} userPosition={userPosition} />
+                    </Control>
+
+                    <Control position="topleft">
+                        <SearchBar />
+                    </Control>
+
                     {/* BUSES */}
                     {buses.map(({ lat, lng, busNo, speed, timestamp }) => (
                         <Marker key={busNo} position={[lat, lng]} icon={customBusIcon}>

@@ -6,7 +6,6 @@ import connectDB from "./db/connectDB.js";
 dotenv.config();
 import cors from 'cors';
 const port = process.env.PORT || 3000;
-
 import busRoutes from './routes/busRoutes.js';
 import bus from './routes/bus.js';
 import user from './routes/authentication.js';
@@ -22,11 +21,6 @@ const io = new Server(httpServer, {
     cors: { origin: ['https://routexclient.onrender.com', 'http://localhost:5173'], credentials: true }
 });
 
-// akk empty array rhe ga
-// jse hi bus ki location update hogi
-// wo bus ki location us array me push kr di jaye gi 
-// agar nhi he to nwe bus add kar di jagi
-const busLocations = [];
 
 connectDB();
 
@@ -45,22 +39,9 @@ app.use('/driver', driver)
 
 
 
-
-// setInterval(() => {
-//     busLocations.forEach(bus => {
-//         bus.lat += (Math.random() - 0.5) * 0.01;
-//         bus.lng += (Math.random() - 0.5) * 0.01;
-//     }
-//     );
-//     io.emit("busUpdate", busLocations);
-// }, 5000);
-
-
+let busLocations = [];
 io.on("connection", (socket) => {
-    console.log("connected ", socket.id)
     socket.on("busUpdate", (data) => {
-        console.log("Received busUpdate:", data);
-        // check if bus already exists in the array
         const busExists = busLocations.map((bus) => {
             if (bus.busId === data.busId) {
                 bus.lat = data.lat;
@@ -70,13 +51,26 @@ io.on("connection", (socket) => {
                 return true;
             }
         });
+
         if (!busExists.includes(true)) {
-            busLocations.push(data);
+            busLocations.push({ socketId: socket.id, ...data });
         }
 
-
-        io.emit("busUpdate", busLocations);
+        io.sockets.emit("broadcastingBuses", busLocations);
     })
+
+    // HANDLE STOP TRANSMISSION
+    socket.on("stopBusTransmission", ({ busId }) => {
+        busLocations = busLocations.filter(bus => bus.busId !== busId);
+        io.sockets.emit("broadcastingBuses", busLocations);
+    });
+
+    socket.on("disconnect", () => {
+        console.log("disconnectedddd:", socket.id);
+        busLocations = busLocations.filter(bus => bus.socketId !== socket.id);
+        io.sockets.emit("broadcastingBuses", busLocations);
+    });
+
 });
 
 httpServer.listen(port, () => {

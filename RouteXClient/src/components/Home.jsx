@@ -1,7 +1,9 @@
 import { lazy, Suspense, useState } from 'react'
 import LoginModal from './LoginModal.jsx'
 import { useEffect } from 'react'
+
 const MapComponent = lazy(() => import("./MapComponent.jsx"));
+
 import axios from 'axios'
 import server from '../utils/backendServer.js'
 import { useNavigate } from 'react-router-dom'
@@ -28,15 +30,16 @@ function Home() {
         }
       }
     } catch (error) {
+      console.log(error)
       return null
     }
   }
 
   useEffect(() => {
     verifyToken();
-  }, [])
+  })
 
-  const handleLoginSuccess = (data) => {
+  const handleLoginSuccess = () => {
     setIsLoginOpen(false)
     verifyToken()
   }
@@ -46,15 +49,15 @@ function Home() {
   return (
     <>
       <div className="bg-gray-900 h-screen w-screen flex flex-col overflow-hidden">
-        {/* Header */}
         <Navbar text={"login"} handleClick={() => setIsLoginOpen(true)} />
-        {/* Main Content */}
         <main className="flex-1 relative w-full overflow-hidden">
+
           {!isLoginOpen &&
             <Suspense fallback={<MapComponentSkeleton />}>
               <MapComponent />
             </Suspense>
           }
+
         </main>
 
         <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} onLoginSuccess={handleLoginSuccess} />

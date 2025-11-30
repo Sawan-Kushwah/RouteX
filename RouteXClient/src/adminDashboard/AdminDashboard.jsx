@@ -1,4 +1,5 @@
-import { lazy, Suspense, useEffect, useState } from 'react'
+
+import { lazy, Suspense, useState } from 'react'
 import { useSearch } from '../utils/useSearch'
 import axios from 'axios'
 import server from '../utils/backendServer'
@@ -21,7 +22,7 @@ export default function AdminDashboard() {
   const navigate = useNavigate()
   const [dark, setDark] = useState(false)
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false)
-  const [isNotificationsMenuOpen, setIsNotificationsMenuOpen] = useState(false)
+  // const [isNotificationsMenuOpen, setIsNotificationsMenuOpen] = useState(false)
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
   const [showBusDashboard, setShowBusDashboard] = useState(false)
   const [showDriverDashboard, setShowDriverDashboard] = useState(false)

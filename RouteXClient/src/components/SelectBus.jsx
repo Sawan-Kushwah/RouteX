@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import  { useEffect, useRef, useState } from 'react'
 import socket from '../utils/socket'
 import axios from 'axios'
 import server from '../utils/backendServer'
@@ -121,7 +121,6 @@ function SelectBus() {
           setError(null);
           const { latitude, longitude } = position.coords
           setCurrentLocation({ lat: latitude, lng: longitude })
-          console.log('Current location:', { lat: latitude, lng: longitude, time: formatUpdateTime(Date.now()) })
 
           // Transmit location via socket
           socket.emit('busUpdate', {
@@ -150,6 +149,11 @@ function SelectBus() {
       navigator.geolocation.clearWatch(watchIdRef.current)
       watchIdRef.current = null
     }
+
+    socket.emit("stopBusTransmission", {
+      busId: selectedRoute.bus._id
+    });
+
     setTransmitting(false)
     setSelectedRoute(null)
     setCurrentLocation(null)
@@ -161,7 +165,6 @@ function SelectBus() {
     navigate('/')
   }
 
-  // Filter routes: exclude busNo === -1 and apply search
   const { filteredItems: filteredRoutes } = useSearch(searchQuery, routes, ['busNo', 'routeNo', 'stops'])
   if (routes.length === 0) {
     <div className="text-center py-12 bg-gray-800 rounded-lg border border-gray-700">
