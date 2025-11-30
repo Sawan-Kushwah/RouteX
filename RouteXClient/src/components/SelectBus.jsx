@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import  { useEffect, useRef, useState } from 'react'
 import socket from '../utils/socket'
 import axios from 'axios'
 import server from '../utils/backendServer'
@@ -150,6 +150,11 @@ function SelectBus() {
       navigator.geolocation.clearWatch(watchIdRef.current)
       watchIdRef.current = null
     }
+
+    socket.emit("stopBusTransmission", {
+      busId: selectedRoute.bus._id
+    });
+
     setTransmitting(false)
     setSelectedRoute(null)
     setCurrentLocation(null)

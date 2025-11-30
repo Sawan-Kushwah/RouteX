@@ -47,10 +47,11 @@ export default function RouteSearch() {
         debounceTimer.current = setTimeout(async () => {
             try {
                 const response = await axios.get(`${server}/routes/searchRoutes`, {
-                    params: { q: searchQuery }
+                    params: { q: searchQuery , limit : 10 }
                 });
 
                 if (response.status === 200) {
+                    console.log("responce data =>",response.data.routes)
                     setSearchResults(response.data.routes || []);
                     setShowResults(true);
                 }
@@ -79,13 +80,13 @@ export default function RouteSearch() {
         setSelectedRoute(null);
         setSearchQuery('');
         setSearchResults([]);
+
         setShowResults(false);
     };
 
     return (
-        <div className="fixed top-6 left-6 w-96 z-50 rounded-xl shadow-2xl overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-all duration-300">
+        <div className="w-96 z-50 rounded-xl shadow-2xl overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-all duration-300">
             {/* Search Header with Gradient Background */}
-            <div className="bg-linear-to-r from-red-600 to-red-700 dark:from-red-700 dark:to-red-800 p-4 shadow-lg">
                 <div className="relative">
                     <div className="absolute left-3 top-3.5 text-white opacity-70">
                         <svg
@@ -106,7 +107,12 @@ export default function RouteSearch() {
                         type="text"
                         placeholder="Search routes, stops, buses..."
                         value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onChange={(e) =>{
+                             setSearchQuery(e.target.value)
+                             if(e.target.value.trim() === "") setIsSearching(false)
+                             setSelectedRoute(null)
+                             setShowResults(true)
+                        }}
                         onFocus={() => searchQuery && setShowResults(true)}
                         className="w-full px-4 py-3 pl-10 rounded-lg bg-white dark:bg-gray-700 dark:text-gray-100 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-red-600 dark:ring-offset-red-800 transition font-medium"
                     />
@@ -116,7 +122,6 @@ export default function RouteSearch() {
                         </div>
                     )}
                 </div>
-            </div>
 
             {/* Search Results Dropdown */}
             {showResults && !selectedRoute && (
