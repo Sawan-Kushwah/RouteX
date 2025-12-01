@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import SuccessModal from '../components/SuccessModal'
 import axios from 'axios'
 import server from '../utils/backendServer'
 
@@ -7,8 +6,6 @@ export default function BusForm({ onClose, setBusDataChanged, setRoutesDataChang
     const [busNo, setBusNo] = useState()
     const [numberPlate, setNumberPlate] = useState('')
     const [status, setStatus] = useState('inactive')
-    const [showSuccess, setShowSuccess] = useState(false)
-    const [addedBus, setAddedBus] = useState(null)
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -23,29 +20,23 @@ export default function BusForm({ onClose, setBusDataChanged, setRoutesDataChang
             status: status.toLowerCase()
         })
         if (response.status === 200) {
-            setAddedBus(response.data.bus)
-            setShowSuccess(true)
             setBusNo('')
             setNumberPlate('')
             setStatus("inactive")
             setBusDataChanged(true);
             setRoutesDataChanged(true)
+            if (typeof onClose === 'function') onClose()
         } else {
             alert('Failed to add bus. Please try again.')
             return
         }
     }
-
-    const handleSuccessClose = () => {
-        setShowSuccess(false)
-        setAddedBus(null)
-        if (typeof onClose === 'function') onClose()
-    }
+ 
 
     return (
         <>
             <div className="fixed inset-0 bg-[#000000c9] flex items-center justify-center z-50 sm:p-4 p-2">
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 sm:w-80 w-full ">
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 sm:w-1/2 w-full ">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Add New Bus</h3>
                         <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-2xl">×</button>
@@ -92,16 +83,6 @@ export default function BusForm({ onClose, setBusDataChanged, setRoutesDataChang
                     </form>
                 </div>
             </div>
-
-            <SuccessModal
-                visible={showSuccess}
-                heading="Bus Added Successfully!"
-                details={addedBus}
-                onClose={handleSuccessClose}
-                buttonText="Done"
-                autoClose={true}
-                autoCloseDelay={5000}
-            />
         </>
     )
 }

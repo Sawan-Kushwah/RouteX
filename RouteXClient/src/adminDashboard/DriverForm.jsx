@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import axios from 'axios'
 import server from '../utils/backendServer'
-import SuccessModal from '../components/SuccessModal'
 
 export default function DriverForm({ onClose, setDriverDataChanged }) {
     const [email, setEmail] = useState('')
@@ -9,8 +8,7 @@ export default function DriverForm({ onClose, setDriverDataChanged }) {
     const [confirmPassword, setConfirmPassword] = useState('')
     const [firstName, setFirstName] = useState('')
     const [lastName, setLastName] = useState('')
-    const [showSuccess, setShowSuccess] = useState(false)
-    const [addedDriver, setAddedDriver] = useState(null)
+
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -36,9 +34,8 @@ export default function DriverForm({ onClose, setDriverDataChanged }) {
             })
             console.log("Driver Added", response)
             if (response.status === 200) {
-                setAddedDriver(response.data.driver)
-                setShowSuccess(true)
                 setDriverDataChanged(true);
+                handleSuccessClose()
             }
         } catch (error) {
             console.error('Error adding driver:', error)
@@ -47,8 +44,6 @@ export default function DriverForm({ onClose, setDriverDataChanged }) {
     }
 
     const handleSuccessClose = () => {
-        setShowSuccess(false)
-        setAddedDriver(null)
         // Clear form
         setEmail('')
         setPassword('')
@@ -192,15 +187,7 @@ export default function DriverForm({ onClose, setDriverDataChanged }) {
                 </div>
             </div>
 
-            <SuccessModal
-                visible={showSuccess}
-                heading="Driver Added Successfully!"
-                details={addedDriver}
-                onClose={handleSuccessClose}
-                buttonText="Done"
-                autoClose={true}
-                autoCloseDelay={2500}
-            />
+
         </>
     )
 }

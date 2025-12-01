@@ -66,7 +66,6 @@ io.on("connection", (socket) => {
     });
 
     socket.on("disconnect", () => {
-        console.log("disconnectedddd:", socket.id);
         busLocations = busLocations.filter(bus => bus.socketId !== socket.id);
         io.sockets.emit("broadcastingBuses", busLocations);
     });

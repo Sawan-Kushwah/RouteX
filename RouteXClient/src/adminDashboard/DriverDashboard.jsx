@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import axios from 'axios'
 import server from '../utils/backendServer'
-import SuccessModal from '../components/SuccessModal'
 import formatUpdateTime from '../utils/formatUpdateTime'
 
 
@@ -175,15 +174,6 @@ export default function DriverDashboard({ filteredDrivers, setDriverDataChanged 
                 </div>
             </div>
 
-            <SuccessModal
-                visible={showDeleteSuccess}
-                heading="Driver Deleted Successfully!"
-                details={deletedDriver}
-                onClose={() => setShowDeleteSuccess(false)}
-                buttonText="Done"
-                autoClose={true}
-                autoCloseDelay={3000}
-            />
         </div>
     )
 }

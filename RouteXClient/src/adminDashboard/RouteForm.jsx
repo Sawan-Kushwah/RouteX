@@ -1,15 +1,12 @@
 import axios from 'axios';
 import React, { useState } from 'react'
-import SuccessModal from '../components/SuccessModal';
 import server from '../utils/backendServer';
 export default function RouteForm({ onClose, setRoutesDataChanged, availableBuses = [], setBusDataChanged }) {
     const [routeName, setRouteNumber] = useState('')
     const [stops, setStops] = useState([])
     const [stopInput, setStopInput] = useState('')
     const [selectedBusId, setSelectedBusId] = useState(null)
-    const [selectedBusNo, setSelectedBusNo] = useState(null)
-    const [showSuccess, setShowSuccess] = useState(false);
-    const [addedRoute, setAddedRoute] = useState([]);
+
 
     const handleAddStop = (e) => {
         if (e.key === 'Enter' && stopInput.trim()) {
@@ -24,8 +21,6 @@ export default function RouteForm({ onClose, setRoutesDataChanged, availableBuse
     }
 
     const handleSuccessClose = () => {
-        setShowSuccess(false)
-        setAddedRoute([])
         setRouteNumber(0)
         if (typeof onClose === 'function') onClose()
     }
@@ -42,17 +37,14 @@ export default function RouteForm({ onClose, setRoutesDataChanged, availableBuse
                 console.log(response);
 
                 if (response.status == 201 || response.status == 200) {
-                    setAddedRoute(response.data.route);
                     setRoutesDataChanged(true);
                     if (selectedBusId) {
                         setBusDataChanged(true);
                     }
-                    setShowSuccess(true);
                     setRouteNumber('')
                     setStops([])
                     setStopInput('')
                     setSelectedBusId(null)
-                    setSelectedBusNo(null)
                 }
             } else {
                 alert('Please enter a route name and at least one stop')
@@ -61,7 +53,6 @@ export default function RouteForm({ onClose, setRoutesDataChanged, availableBuse
             console.error("Error adding route:", error);
             alert('Failed to add route. Please try again. route might already exist.')
         }
-
 
 
     }
@@ -148,12 +139,10 @@ export default function RouteForm({ onClose, setRoutesDataChanged, availableBuse
                                 onChange={(e) => {
                                     if (e.target.value === '') {
                                         setSelectedBusId(null);
-                                        setSelectedBusNo(null);
                                     } else {
                                         const busObj = availableBuses.find(b => b._id === e.target.value);
                                         if (busObj) {
                                             setSelectedBusId(busObj._id);
-                                            setSelectedBusNo(busObj.busNo);
                                         }
                                     }
                                 }}
@@ -191,15 +180,6 @@ export default function RouteForm({ onClose, setRoutesDataChanged, availableBuse
                     </form>
                 </div>
             </div>
-            <SuccessModal
-                visible={showSuccess}
-                heading="Route Added Successfully!"
-                details={addedRoute}
-                onClose={handleSuccessClose}
-                buttonText="Done"
-                autoClose={true}
-                autoCloseDelay={3000}
-            />
         </>
     )
 }
