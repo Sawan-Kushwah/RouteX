@@ -135,7 +135,7 @@ export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, 
                                                         />
                                                     </div>
 
-                                                    <div className="flex flex-wrap gap-2">
+                                                    <div className="flex flex-wrap max-w-125 gap-2">
                                                         {(editData.stops || []).map((stop, idx) => (
                                                             <div
                                                                 key={idx}

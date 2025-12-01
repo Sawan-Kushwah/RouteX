@@ -194,43 +194,52 @@ const getRouteById = async (req, res) => {
 
 const searchRoutes = async (req, res) => {
     try {
-        const { q  , limit } = req.query;
-        const fields = ["stops","busNo","routeNo","updatedAt"]
-        const busFields =  fields.filter(f =>( f == "busNo" || f == 'numberPlate' || f == 'status'))
-        const selectBusField = busFields.join(" ")
-        const routeFields = fields.filter(f => f != "busNo" && f != 'numberPlate' &&  f != 'status')
-        const selectRouteField = routeFields.join(" ")
-        
+        const { q, limit = 5 } = req.query;
 
-        if (!q || q.trim() === '') {
+        if (!q || q.trim() === "") {
             return res.status(200).json({ message: "Empty search query", routes: [] });
         }
 
         const searchQuery = q.trim();
-        const routeNo = (!isNaN(searchQuery)) ? Number(searchQuery) : -1; 
-        const searchRegex = new RegExp(searchQuery, 'i');
+        const isNumber = !isNaN(searchQuery);
+        const numValue = Number(searchQuery);
+        const searchRegex = new RegExp(searchQuery, "i");
+        const selectRouteField = "stops routeNo updatedAt";
+        const selectBusField = "busNo numberPlate status";
 
-        // Search in route number, stops, or bus number
-        // give search result as select stops busno initially bs 5 dena baki search ke according 
-        const routes = await BusRoute.find({
-            $or: [
-                { routeNo: routeNo },
-                { stops: { $in: [searchRegex] } }
-            ]
-        })
-        .select(selectRouteField)
-        .populate({ path: "bus", select: selectBusField })
-        .limit(limit);
+        let populateOptions = {
+            path: "bus",
+            select: selectBusField
+        };
+
+
+        let findQuery = {
+            $or: [{ stops: { $in: [searchRegex] } }]
+        };
+
+        if (isNumber) {
+            findQuery.$or.push({ routeNo: numValue });
+        }
+
+        // Get routes + bus (no filtering yet)
+        let routes = await BusRoute.find(findQuery)
+            .select(selectRouteField)
+            .populate(populateOptions)
+            .limit(limit);
+
 
         res.status(200).json({
             message: "Search completed successfully",
-            routes: routes
+            routes
         });
+
     } catch (error) {
         console.error("Error searching routes:", error);
         res.status(500).json({ message: "Error searching routes", error: error.message });
     }
-}
+};
+
+
 
 const getAllAssignedRoutes = async (req, res) => {
     try {

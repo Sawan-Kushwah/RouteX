@@ -1,8 +1,10 @@
 import React from 'react'
+import useIsMobile from '../utils/useIsMobile'
 
 const SearchBarSkeleton = () => {
+    
     return (
-        <div className="max-h-[450px] overflow-y-auto bg-white/60 rounded-2xl shadow-xl p-2">
+        <div className=" max-h-72 sm:max-h-[450px] overflow-y-auto bg-white/90 rounded-2xl shadow-xl p-2">
             {[1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className="p-4 border-b border-gray-100 animate-pulse flex justify-between">
                     <div className="w-full">
