@@ -56,6 +56,7 @@ export default function AdminDashboard() {
       setInactiveBus(response.data.inactiveBuses || []);
       setRouteHaveBus(response.data.routeHaveBus || 0);
       setRoutesDataChanged(false);
+
     } catch (error) {
       console.error("Error fetching routes:", error);
       toast.error("Error fetching routes")
@@ -172,8 +173,8 @@ export default function AdminDashboard() {
 
 
   const handleLogout = async () => {
-    console.log("logoutttttttttt")
     await axios.get(`${server}/user/logout`, { withCredentials: true });
+    toast.success('logout successfully')
     navigate('/')
   }
 
@@ -444,7 +445,7 @@ export default function AdminDashboard() {
                     />
                   </Suspense>
                   <Suspense fallback={<DashboardSkeleton />}>
-                    <DriverDashboard  filteredDrivers={filteredDrivers} setDriverDataChanged={setDriverDataChanged} />
+                    <DriverDashboard filteredDrivers={filteredDrivers} setDriverDataChanged={setDriverDataChanged} />
                   </Suspense>
                 </>
               )

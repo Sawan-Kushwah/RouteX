@@ -1,4 +1,4 @@
-import  { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import socket from '../utils/socket'
 import axios from 'axios'
 import server from '../utils/backendServer'
@@ -156,7 +156,7 @@ function SelectBus() {
     }
 
     socket.emit("stopBusTransmission", {
-      busId: selectedRoute.bus._id
+      busId: selectedRoute?.bus._id
     });
 
     toast.success("Transmission stoped")
@@ -167,9 +167,9 @@ function SelectBus() {
   }
 
   const handleLogout = async () => {
-    stopTransmission()
+    if (transmitting) stopTransmission()
     await axios.get(`${server}/user/logout`, { withCredentials: true })
-    toast.success("loged Out")
+    toast.success("logout successfully")
     navigate('/')
   }
 

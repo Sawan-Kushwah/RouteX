@@ -1,9 +1,9 @@
 import axios from 'axios';
-import React, { useState } from 'react'
+import { useState } from 'react'
 import server from '../utils/backendServer';
 import { toast } from 'react-toastify';
 export default function RouteForm({ onClose, setRoutesDataChanged, availableBuses = [], setBusDataChanged }) {
-    const [routeName, setRouteNumber] = useState('')
+    const [routeNumber, setRouteNumber] = useState(null)
     const [stops, setStops] = useState([])
     const [stopInput, setStopInput] = useState('')
     const [selectedBusId, setSelectedBusId] = useState(null)
@@ -21,23 +21,20 @@ export default function RouteForm({ onClose, setRoutesDataChanged, availableBuse
         setStops(stops.filter((_, i) => i !== index))
     }
 
-    const handleSuccessClose = () => {
-        setRouteNumber(0)
-        if (typeof onClose === 'function') onClose()
-    }
+
     const handleSubmit = async (e) => {
         e.preventDefault()
         try {
-            if (routeName.trim() && stops.length > 0) {
-
+            if (routeNumber.trim() && stops.length > 0) {
                 const response = await axios.post(`${server}/routes/addRoute`, {
-                    routeNo: routeName,
+                    routeNo: routeNumber,
                     stops: stops,
                     bus: selectedBusId !== null ? selectedBusId : null
                 });
                 console.log(response);
 
-                if (response.status == 201 || response.status == 200) {
+                if (response.status == 200) {
+                    toast.success(`Route no ${routeNumber} added successfully`)
                     setRoutesDataChanged(true);
                     if (selectedBusId) {
                         setBusDataChanged(true);
@@ -46,6 +43,8 @@ export default function RouteForm({ onClose, setRoutesDataChanged, availableBuse
                     setStops([])
                     setStopInput('')
                     setSelectedBusId(null)
+                    setRouteNumber(null)
+                    if (typeof onClose === 'function') onClose()
                 }
             } else {
                 toast.warning('Please enter a route name and at least one stop')
@@ -53,7 +52,7 @@ export default function RouteForm({ onClose, setRoutesDataChanged, availableBuse
         } catch (error) {
             console.error("Error adding route:", error);
             toast.error('Failed to add route. Please try again. route might already exist.')
-        } 
+        }
 
     }
 
@@ -81,7 +80,7 @@ export default function RouteForm({ onClose, setRoutesDataChanged, availableBuse
                             </label>
                             <input
                                 type="text"
-                                value={routeName}
+                                value={routeNumber}
                                 onChange={(e) => setRouteNumber(e.target.value)}
                                 placeholder="e.g., Route 101"
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -171,7 +170,7 @@ export default function RouteForm({ onClose, setRoutesDataChanged, availableBuse
                                 Cancel
                             </button>
                             <button
-                                type="submit"
+                                type='submit'
                                 className="flex-1 px-4 py-2 cursor-pointer bg-purple-600 text-white font-semibold rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                             >
                                 Add Route

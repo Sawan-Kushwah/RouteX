@@ -3,6 +3,7 @@ import './LoginModal.css'
 import server from '../utils/backendServer'
 import axios from 'axios'
 import notify from '../utils/notification'
+import { toast } from 'react-toastify'
 
 
 const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
@@ -10,12 +11,10 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
     const [password, setPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
     const [loading, setLoading] = useState(false)
-    const [error, setError] = useState('')
-    
+
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        setError('')
         setLoading(true)
         try {
             const response = await axios.post(`${server}/user/login`, {
@@ -25,20 +24,17 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                 { withCredentials: true }
             )
             if (response.status !== 200) {
-                setError(response.data.message || 'Login failed')
-                notify({type: "error" ,message : response.data.message});
+                toast.error("Something went wrong");
                 return
             }
 
-            console.log('Login successful:', response.data)
-            notify({type: "success", message: "Login successful:"})
+            toast.success("Login successful:")
             setEmail('')
             setPassword('')
             if (typeof onLoginSuccess === 'function') onLoginSuccess(response.data)
             onClose()
         } catch (err) {
-            setError('Error connecting to server')
-            notify({type: "error" ,message : "Error connecting to server"});
+            toast.error('User credentials invalid')
             console.log(err.message);
         } finally {
             setLoading(false)
@@ -60,11 +56,6 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                 <div className="w-full">
                     <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Login</h2>
 
-                    {error && (
-                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 text-sm">
-                            {error}
-                        </div>
-                    )}
 
                     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
                         <div className="flex flex-col gap-2">
