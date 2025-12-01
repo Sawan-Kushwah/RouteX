@@ -1,14 +1,13 @@
 import axios from 'axios';
 import React, { useState } from 'react'
-import SuccessModal from '../components/SuccessModal';
 import server from '../utils/backendServer';
+import { toast } from 'react-toastify';
 export default function RouteForm({ onClose, setRoutesDataChanged, availableBuses = [], setBusDataChanged }) {
     const [routeName, setRouteNumber] = useState('')
     const [stops, setStops] = useState([])
     const [stopInput, setStopInput] = useState('')
     const [selectedBusId, setSelectedBusId] = useState(null)
     const [selectedBusNo, setSelectedBusNo] = useState(null)
-    const [showSuccess, setShowSuccess] = useState(false);
     const [addedRoute, setAddedRoute] = useState([]);
 
     const handleAddStop = (e) => {
@@ -23,12 +22,7 @@ export default function RouteForm({ onClose, setRoutesDataChanged, availableBuse
         setStops(stops.filter((_, i) => i !== index))
     }
 
-    const handleSuccessClose = () => {
-        setShowSuccess(false)
-        setAddedRoute([])
-        setRouteNumber(0)
-        if (typeof onClose === 'function') onClose()
-    }
+    
     const handleSubmit = async (e) => {
         e.preventDefault()
         try {
@@ -47,21 +41,24 @@ export default function RouteForm({ onClose, setRoutesDataChanged, availableBuse
                     if (selectedBusId) {
                         setBusDataChanged(true);
                     }
-                    setShowSuccess(true);
                     setRouteNumber('')
                     setStops([])
                     setStopInput('')
                     setSelectedBusId(null)
                     setSelectedBusNo(null)
+                    toast.success("Route added")
+                    setAddedRoute([])
+                    setRouteNumber(0)
+                    if (typeof onClose === 'function') onClose()
+                    
                 }
             } else {
-                alert('Please enter a route name and at least one stop')
+                toast.warning('Please enter a route name and at least one stop')
             }
         } catch (error) {
             console.error("Error adding route:", error);
-            alert('Failed to add route. Please try again. route might already exist.')
-        }
-
+            toast.error('Failed to add route. Please try again. route might already exist.')
+        } 
 
 
     }
@@ -191,15 +188,7 @@ export default function RouteForm({ onClose, setRoutesDataChanged, availableBuse
                     </form>
                 </div>
             </div>
-            <SuccessModal
-                visible={showSuccess}
-                heading="Route Added Successfully!"
-                details={addedRoute}
-                onClose={handleSuccessClose}
-                buttonText="Done"
-                autoClose={true}
-                autoCloseDelay={3000}
-            />
+           
         </>
     )
 }

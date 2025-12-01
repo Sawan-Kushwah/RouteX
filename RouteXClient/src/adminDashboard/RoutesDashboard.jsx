@@ -2,6 +2,8 @@ import axios from 'axios';
 import { useState } from 'react';
 import server from '../utils/backendServer';
 import formatUpdateTime from '../utils/formatUpdateTime';
+import { toast } from 'react-toastify';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, availableBuses, setBusDataChanged }) {
     const [editingId, setEditingId] = useState(null);
@@ -61,7 +63,7 @@ export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, 
             }
         } catch (error) {
             console.error(error);
-            alert('Failed to update route. Try again.');
+            toast.error('Failed to update route. Try again.');
         }
     };
 
@@ -71,8 +73,14 @@ export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, 
         setEditData({});
     };
 
+    const [open, setOpen] = useState(false);
+    const [toDelet, setToDelet] = useState(null)
+
+    
+
+  
     // Delete route
-    const handleDelete = async (route) => {
+    const handleDelete = async () => {
         try {
             const response = await axios.delete(`${server}/routes/deleteRoute/${route._id}`, { data: { busId: route.bus?._id || null } });
             if (response.status === 200) {
@@ -82,7 +90,7 @@ export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, 
                 }
             }
         } catch (error) {
-            alert('Failed to delete route.');
+            toast.error('Failed to delete route.');
             console.error(error);
         }
     };
@@ -91,6 +99,16 @@ export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, 
 
     return (
         <div className="w-full rounded-lg shadow-xs overflow-x-scroll">
+             <ConfirmDialog
+                open={open}
+                title="Delete Route?"
+                message="Are you sure you want to delete this Route? This action cannot be undone."
+                onConfirm={() => {
+                    handleDelete()
+                    setOpen(false)
+                }}
+                onCancel={() => { setOpen(false) }}
+            />
             <div className={`${filteredRoutes.length < 5 ? 'h-[30vh]' : ''}`}>
                 <table className="min-w-max sm:w-full table-auto whitespace-no-wrap">
                     <thead>
@@ -111,7 +129,7 @@ export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, 
                                     <tr key={route._id} className="text-gray-700 dark:text-gray-400">
                                         {editingId === route._id ? (
                                             <>
-                                                <td className="px-4 py-3">
+                                                <td className="px-4 max-w-20 py-3">
                                                     <input
                                                         type="text"
                                                         value={editData.routeNo || ''}
@@ -135,7 +153,7 @@ export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, 
                                                         />
                                                     </div>
 
-                                                    <div className="flex flex-wrap gap-2">
+                                                    <div className="flex flex-wrap max-w-125 gap-2">
                                                         {(editData.stops || []).map((stop, idx) => (
                                                             <div
                                                                 key={idx}

@@ -3,6 +3,8 @@ import axios from 'axios';
 import server from '../utils/backendServer';
 import formatUpdateTime from '../utils/formatUpdateTime';
 import { Search } from 'lucide-react';
+import notify from '../utils/notification';
+import { toast } from 'react-toastify';
 
 export default function SearchBar() {
     const [searchQuery, setSearchQuery] = useState('');
@@ -36,6 +38,7 @@ export default function SearchBar() {
                 }
             } catch (error) {
                 console.error("Error searching routes:", error);
+                toast.error("unable to find routs");
                 setSearchResults([]);
             } finally {
                 setIsSearching(false);

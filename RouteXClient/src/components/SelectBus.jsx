@@ -7,6 +7,7 @@ import { useSearch } from '../utils/useSearch'
 import formatUpdateTime from '../utils/formatUpdateTime'
 import Navbar from './Navbar'
 import SelectBusSkeleton from './SelectBusSkeleton'
+import { toast } from 'react-toastify'
 
 function TransmittingPage({ selectedRoute, currentLocation, socketIdRef, stopTransmission }) {
   return (
@@ -103,6 +104,7 @@ function SelectBus() {
       }
     } catch (err) {
       console.error('Error fetching routes:', err)
+      toast.error("Unable to fetch route")
       setError('Failed to fetch routes from server')
     } finally {
       setLoading(false)
@@ -132,15 +134,18 @@ function SelectBus() {
             speed: position.coords.speed || 0,
             timestamp: position.timestamp
           })
+          toast.success("location access success")
         },
         (error) => {
           console.error('Geolocation error:', error)
+          toast.error("Geolocation error")
           setError('Unable to access your location. Please enable location services.')
         },
         { enableHighAccuracy: true, maximumAge: 0, timeout: 1000 }
       )
     } else {
       setError('Geolocation is not supported by this browser.')
+      toast.error('Geolocation not supported')
     }
   }
 
@@ -154,6 +159,8 @@ function SelectBus() {
       busId: selectedRoute.bus._id
     });
 
+    toast.success("Transmission stoped")
+
     setTransmitting(false)
     setSelectedRoute(null)
     setCurrentLocation(null)
@@ -162,6 +169,7 @@ function SelectBus() {
   const handleLogout = async () => {
     stopTransmission()
     await axios.get(`${server}/user/logout`, { withCredentials: true })
+    toast.success("loged Out")
     navigate('/')
   }
 
