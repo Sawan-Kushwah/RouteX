@@ -4,7 +4,6 @@ import axios from 'axios'
 import server from '../utils/backendServer'
 import { useNavigate } from 'react-router-dom'
 import { useSearch } from '../utils/useSearch'
-import formatUpdateTime from '../utils/formatUpdateTime'
 import Navbar from './Navbar'
 import SelectBusSkeleton from './SelectBusSkeleton'
 import { toast } from 'react-toastify'
@@ -91,7 +90,6 @@ function SelectBus() {
   // Fetch routes from server on mount
   useEffect(() => {
     fetchRoutes()
-    console.log('fetching routes');
   }, [])
 
   const fetchRoutes = async () => {
@@ -118,6 +116,7 @@ function SelectBus() {
 
     // Get and watch location
     if (navigator.geolocation) {
+      toast.success("location access success")
       watchIdRef.current = navigator.geolocation.watchPosition(
         (position) => {
           setError(null);
@@ -134,7 +133,6 @@ function SelectBus() {
             speed: position.coords.speed || 0,
             timestamp: position.timestamp
           })
-          toast.success("location access success")
         },
         (error) => {
           console.error('Geolocation error:', error)

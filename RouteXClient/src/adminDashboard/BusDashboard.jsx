@@ -44,7 +44,7 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged, setRout
         }))
     }
 
-    const saveState = async () => {
+    const handleSave = async () => {
         try {
             const response = await axios.patch(`${server}/bus/updateBus/${editingId}`, {
                 busNo: editData.busNo,
@@ -66,17 +66,9 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged, setRout
         } catch (error) {
             toast.error('Failed to update bus. Please try again.')
             console.error(error)
-
         }
     }
 
-    const handleSave = async (bus) => {
-        if (bus.status === 'active' && editData.status === 'maintenance') {
-            setOpen(true);
-        } else {
-            saveState()
-        }
-    }
 
     const handleCancel = () => {
         setEditingId(null)
@@ -184,7 +176,7 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged, setRout
                                                     <>
                                                         <button
                                                             className="px-3 py-1.5 rounded-lg bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 shadow-sm"
-                                                            onClick={() => handleSave(bus)}
+                                                            onClick={handleSave}
                                                         >
                                                             Save
                                                         </button>
