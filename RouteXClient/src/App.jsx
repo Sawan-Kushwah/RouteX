@@ -7,15 +7,30 @@ import ProtectedRoute from './components/ProtectedRoute'
 import SelectBusSkeleton from './components/SelectBusSkeleton.jsx';
 import AdminDashboardSkeleton from './adminDashboard/AdminDashboardSkeleton.jsx';
 
+
+import { ToastContainer } from 'react-toastify';
+
 const SelectBus = lazy(() => import('./components/SelectBus.jsx'));
 const AdminDashboard = lazy(() => import('./adminDashboard/AdminDashboard.jsx'));
 
 function App() {
   return (
     <>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+      
       <BrowserRouter>
         <Routes>
-          
+
           <Route path="/" element={<Home />} />
 
           <Route path="/location" element={
@@ -34,6 +49,7 @@ function App() {
           } />
         </Routes>
       </BrowserRouter>
+
     </>
 
   )

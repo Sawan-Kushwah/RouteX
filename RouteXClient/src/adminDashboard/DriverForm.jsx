@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import axios from 'axios'
 import server from '../utils/backendServer'
+import { toast } from 'react-toastify'
 
 export default function DriverForm({ onClose, setDriverDataChanged }) {
     const [email, setEmail] = useState('')
@@ -8,7 +9,6 @@ export default function DriverForm({ onClose, setDriverDataChanged }) {
     const [confirmPassword, setConfirmPassword] = useState('')
     const [firstName, setFirstName] = useState('')
     const [lastName, setLastName] = useState('')
-
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -16,12 +16,12 @@ export default function DriverForm({ onClose, setDriverDataChanged }) {
         e.preventDefault()
 
         if (!email || !password || !confirmPassword) {
-            alert('Email and password are required')
+            toast.warning('Email and password are required')
             return
         }
 
         if (password !== confirmPassword) {
-            alert('Passwords do not match')
+            toast.warning('Passwords do not match')
             return
         }
 
@@ -32,25 +32,20 @@ export default function DriverForm({ onClose, setDriverDataChanged }) {
                 firstName: firstName || 'Driver',
                 lastName: lastName || ''
             })
-            console.log("Driver Added", response)
             if (response.status === 200) {
+                toast.success(`${firstName + " " + lastName} added successfully`);
                 setDriverDataChanged(true);
-                handleSuccessClose()
+                setEmail('')
+                setPassword('')
+                setConfirmPassword('')
+                setFirstName('')
+                setLastName('')
+                onClose()
             }
         } catch (error) {
             console.error('Error adding driver:', error)
-            alert('Failed to add driver. Email might already exist.')
+            toast.error('Failed to add driver. Email might already exist.')
         }
-    }
-
-    const handleSuccessClose = () => {
-        // Clear form
-        setEmail('')
-        setPassword('')
-        setConfirmPassword('')
-        setFirstName('')
-        setLastName('')
-        onClose()
     }
 
     return (
@@ -70,7 +65,11 @@ export default function DriverForm({ onClose, setDriverDataChanged }) {
                             <input
                                 type="email"
                                 value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                onChange={(e) => {
+
+                                    setEmail(e.target.value)
+
+                                }}
                                 className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 placeholder="driver@example.com"
                             />

@@ -174,7 +174,7 @@ const deleteRoute = async (req, res) => {
         await session.abortTransaction();
         res.status(500).json({ message: "Error deleting route", error: error.message });
     } finally {
-        select.endSession();
+        session.endSession();
     }
 }
 

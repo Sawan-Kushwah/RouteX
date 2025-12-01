@@ -6,6 +6,7 @@ import server from '../utils/backendServer'
 import { useNavigate } from 'react-router-dom'
 import adminProfile from '../assets/adminProfile.png'
 import DashboardSkeleton from './DashboardSkeleton'
+import { toast } from 'react-toastify'
 
 const RouteForm = lazy(() => import('./RouteForm'))
 const BusForm = lazy(() => import('./BusForm'))
@@ -55,8 +56,10 @@ export default function AdminDashboard() {
       setInactiveBus(response.data.inactiveBuses || []);
       setRouteHaveBus(response.data.routeHaveBus || 0);
       setRoutesDataChanged(false);
+
     } catch (error) {
       console.error("Error fetching routes:", error);
+      toast.error("Error fetching routes")
     } finally {
       setLoading(false);
     }
@@ -74,6 +77,7 @@ export default function AdminDashboard() {
       setInactiveBusCount(response.data.inactiveBusCount);
     } catch (error) {
       console.error("Error fetching buses:", error);
+      toast.error("Error fetching bus")
     } finally {
       setLoading(false)
     }
@@ -89,6 +93,7 @@ export default function AdminDashboard() {
       setDriverDataChanged(false);
     } catch (error) {
       console.error('Error fetching drivers:', error)
+      toast.error("Error fetching driver")
     } finally {
       setLoading(false)
     }
@@ -168,8 +173,8 @@ export default function AdminDashboard() {
 
 
   const handleLogout = async () => {
-    console.log("logoutttttttttt")
     await axios.get(`${server}/user/logout`, { withCredentials: true });
+    toast.success('logout successfully')
     navigate('/')
   }
 

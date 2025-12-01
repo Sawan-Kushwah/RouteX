@@ -12,6 +12,7 @@ import MapComponentSkeleton from './MapComponentSkeleton.jsx';
 
 
 
+
 function Home() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const navigate = useNavigate()
@@ -29,8 +30,8 @@ function Home() {
           navigate('/location')
         }
       }
-    } catch (error) {
-      console.log(error)
+    } catch {
+      // console.log(error)
       return null
     }
   }

@@ -4,7 +4,6 @@ import bcrypt from 'bcrypt';
 const addDriver = async (req, res) => {
     try {
         const { email, password, firstName, lastName } = req.body;
-
         const existingDriver = await BusDriver.findOne({ email });
 
         if (existingDriver) {
