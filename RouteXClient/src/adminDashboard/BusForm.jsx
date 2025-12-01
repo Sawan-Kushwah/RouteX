@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import SuccessModal from '../components/SuccessModal'
 import axios from 'axios'
 import server from '../utils/backendServer'
 import { toast } from 'react-toastify'
@@ -42,7 +41,7 @@ export default function BusForm({ onClose, setBusDataChanged, setRoutesDataChang
     return (
         <>
             <div className="fixed inset-0 bg-[#000000c9] flex items-center justify-center z-50 sm:p-4 p-2">
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 sm:w-80 w-full ">
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 sm:w-1/2 w-full ">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Add New Bus</h3>
                         <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-2xl">×</button>

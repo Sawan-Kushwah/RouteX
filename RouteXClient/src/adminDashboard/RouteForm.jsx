@@ -7,8 +7,7 @@ export default function RouteForm({ onClose, setRoutesDataChanged, availableBuse
     const [stops, setStops] = useState([])
     const [stopInput, setStopInput] = useState('')
     const [selectedBusId, setSelectedBusId] = useState(null)
-    const [selectedBusNo, setSelectedBusNo] = useState(null)
-    const [addedRoute, setAddedRoute] = useState([]);
+
 
     const handleAddStop = (e) => {
         if (e.key === 'Enter' && stopInput.trim()) {
@@ -22,7 +21,10 @@ export default function RouteForm({ onClose, setRoutesDataChanged, availableBuse
         setStops(stops.filter((_, i) => i !== index))
     }
 
-    
+    const handleSuccessClose = () => {
+        setRouteNumber(0)
+        if (typeof onClose === 'function') onClose()
+    }
     const handleSubmit = async (e) => {
         e.preventDefault()
         try {
@@ -36,7 +38,6 @@ export default function RouteForm({ onClose, setRoutesDataChanged, availableBuse
                 console.log(response);
 
                 if (response.status == 201 || response.status == 200) {
-                    setAddedRoute(response.data.route);
                     setRoutesDataChanged(true);
                     if (selectedBusId) {
                         setBusDataChanged(true);
@@ -45,12 +46,6 @@ export default function RouteForm({ onClose, setRoutesDataChanged, availableBuse
                     setStops([])
                     setStopInput('')
                     setSelectedBusId(null)
-                    setSelectedBusNo(null)
-                    toast.success("Route added")
-                    setAddedRoute([])
-                    setRouteNumber(0)
-                    if (typeof onClose === 'function') onClose()
-                    
                 }
             } else {
                 toast.warning('Please enter a route name and at least one stop')
@@ -59,7 +54,6 @@ export default function RouteForm({ onClose, setRoutesDataChanged, availableBuse
             console.error("Error adding route:", error);
             toast.error('Failed to add route. Please try again. route might already exist.')
         } 
-
 
     }
 
@@ -145,12 +139,10 @@ export default function RouteForm({ onClose, setRoutesDataChanged, availableBuse
                                 onChange={(e) => {
                                     if (e.target.value === '') {
                                         setSelectedBusId(null);
-                                        setSelectedBusNo(null);
                                     } else {
                                         const busObj = availableBuses.find(b => b._id === e.target.value);
                                         if (busObj) {
                                             setSelectedBusId(busObj._id);
-                                            setSelectedBusNo(busObj.busNo);
                                         }
                                     }
                                 }}
@@ -188,7 +180,6 @@ export default function RouteForm({ onClose, setRoutesDataChanged, availableBuse
                     </form>
                 </div>
             </div>
-           
         </>
     )
 }

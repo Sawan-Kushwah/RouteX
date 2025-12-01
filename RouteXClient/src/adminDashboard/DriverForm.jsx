@@ -1,8 +1,6 @@
 import React, { useState } from 'react'
 import axios from 'axios'
 import server from '../utils/backendServer'
-import SuccessModal from '../components/SuccessModal'
-import { toast } from 'react-toastify'
 
 export default function DriverForm({ onClose, setDriverDataChanged }) {
     const [email, setEmail] = useState('')
@@ -48,6 +46,7 @@ export default function DriverForm({ onClose, setDriverDataChanged }) {
                 onClose()
                 toast.success("driver added")
                 
+                handleSuccessClose()
             }
         } catch (error) {
             console.error('Error adding driver:', error)
@@ -55,7 +54,15 @@ export default function DriverForm({ onClose, setDriverDataChanged }) {
         }
     }
 
-
+    const handleSuccessClose = () => {
+        // Clear form
+        setEmail('')
+        setPassword('')
+        setConfirmPassword('')
+        setFirstName('')
+        setLastName('')
+        onClose()
+    }
 
     return (
         <>
@@ -194,6 +201,8 @@ export default function DriverForm({ onClose, setDriverDataChanged }) {
                     </form>
                 </div>
             </div>
+
+
         </>
     )
 }

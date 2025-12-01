@@ -12,7 +12,7 @@ const MapComponentSkeleton = () => {
             </div>
 
             {/* Top Right Status Box */}
-            <div className="absolute top-5 right-5 bg-gray-900/80 backdrop-blur-md border border-gray-700 rounded-xl px-5 py-3">
+            <div className="hidden sm:block absolute top-5 right-5 bg-gray-900/80 backdrop-blur-md border border-gray-700 rounded-xl px-5 py-3">
                 <div className="flex items-center gap-2 mb-1">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <div className="h-3 w-24 bg-gray-700 rounded"></div>
@@ -24,7 +24,7 @@ const MapComponentSkeleton = () => {
             </div>
 
             {/* Bottom Right Legend */}
-            <div className="absolute bottom-5 right-5 bg-gray-900/80 backdrop-blur-md border border-gray-700 rounded-xl px-4 py-3 space-y-2">
+            <div className="absolute ms:bottom-5 bottom-20 right-5 bg-gray-900/80 backdrop-blur-md border border-gray-700 rounded-xl px-4 py-3 space-y-2">
                 <div className="flex items-center gap-2">
                     <div className="w-4 h-4 bg-red-500 rounded-full"></div>
                     <div className="h-3 w-20 bg-gray-700 rounded"></div>
@@ -64,9 +64,17 @@ const MapComponentSkeleton = () => {
             </div>
 
             {/* Zoom Buttons Placeholder */}
-            <div className="absolute top-5 left-5 space-y-2">
+            <div className="absolute bottom-20 sm:bottom-5 left-5 space-y-2">
+                <div>
+
+                <div className="w-8 h-8 bg-gray-700 rounded-md mb-1"></div>
                 <div className="w-8 h-8 bg-gray-700 rounded-md"></div>
-                <div className="w-8 h-8 bg-gray-700 rounded-md"></div>
+                </div>
+                <div className="w-28 sm:hidden h-8 rounded-md bg-gray-700"></div>
+
+            </div>
+            <div className="absolute top-5 left-8 space-y-2">
+                <div className="w-80 sm:w-96 h-10 rounded-full bg-gray-700"></div>
             </div>
         </div>
     );
