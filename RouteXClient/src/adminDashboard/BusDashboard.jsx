@@ -1,36 +1,43 @@
 import { useState } from 'react'
 import axios from 'axios'
 import server from '../utils/backendServer';
-import SuccessModal from '../components/SuccessModal';
 import formatUpdateTime from '../utils/formatUpdateTime';
+import { toast } from 'react-toastify';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 export default function BusDashboard({ filteredBuses, setBusDataChanged, setRoutesDataChanged }) {
-    const [showSuccess, setShowSuccess] = useState(false)
+
     const [deletedBus, setDeletedBus] = useState(null)
     const [editingId, setEditingId] = useState(null)
     const [editData, setEditData] = useState({})
+    const [editingOrignalState, setEditingOrignalState] = useState("");
     const [showUpdateSuccess, setShowUpdateSuccess] = useState(false)
     const [updatedBus, setUpdatedBus] = useState(null)
 
+    const [open, setOpen] = useState(false);
+
+
     const handleDelete = async (bus) => {
         if (bus.status === 'active') {
-            alert('You cannot delete a active bus')
+            // alert('You cannot delete a active bus')
+            toast.warning('You cannot delete a active bus')
             return
         }
         const response = await axios.delete(`${server}/bus/deleteBus/${bus._id}`)
         console.log('deleting bus:', bus._id, response)
         if (response.status === 200) {
             setDeletedBus(response.data.bus)
-            setShowSuccess(true)
             setBusDataChanged(true);
             console.log('bus deleted successfully', response.data.bus)
+            toast.success("Bus deletd successfully")
         } else {
-            alert('Failed to delete bus')
+            toast.error('Failed to delete bus')
         }
     }
 
     const handleEditClick = (bus) => {
         setEditingId(bus._id)
+        setEditingOrignalState(bus.status)
         setEditData({
             busNo: bus.busNo,
             numberPlate: bus.numberPlate,
@@ -45,39 +52,45 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged, setRout
         }))
     }
 
-    const handleSave = async (bus) => {
+    const saveState = async () => {
         try {
+             const response = await axios.patch(`${server}/bus/updateBus/${editingId}`, {
+                    busNo: editData.busNo,
+                    numberPlate: editData.numberPlate.toLowerCase(),
+                    status: editData.status.toLowerCase(),
+                    originalStatus: editingOrignalState
+                })
+
+                if (response.status === 200) {
+                    if (editData.status.toLowerCase() !== editingOrignalState) {
+                        setRoutesDataChanged(true);
+                    }
+                    setUpdatedBus(response.data.bus)
+                    setShowUpdateSuccess(true)
+                    setEditingId(null)
+                    setEditingOrignalState("");
+                    setEditData({})
+                    setBusDataChanged(true);
+                }
+        } catch (error) {
+            toast.error('Failed to update bus. Please try again.')
+            console.error(error)
+            
+        }
+    }
+
+    const handleSave = async (bus) => {
             // console.log(busId , editData);
             if (bus.status === 'active' && editData.status === 'maintenance') {
-                if (!confirm('Your bus is active on route , bus will get removed from routes')) {
-                    return;
-                }
+                setOpen(true);
+            } else {
+                saveState()
             }
-            const response = await axios.patch(`${server}/bus/updateBus/${bus._id}`, {
-                busNo: editData.busNo,
-                numberPlate: editData.numberPlate.toLowerCase(),
-                status: editData.status.toLowerCase(),
-                originalStatus: bus.status
-            })
-
-            if (response.status === 200) {
-                if (editData.status.toLowerCase() !== bus.status) {
-                    setRoutesDataChanged(true);
-                }
-                setUpdatedBus(response.data.bus)
-                setShowUpdateSuccess(true)
-                setEditingId(null)
-                setEditData({})
-                setBusDataChanged(true);
-            }
-        } catch (error) {
-            alert('Failed to update bus. Please try again.')
-            console.error(error)
-        }
     }
 
     const handleCancel = () => {
         setEditingId(null)
+        setEditingOrignalState("")
         setEditData({})
     }
 
@@ -95,6 +108,16 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged, setRout
 
     return (
         <div className="w-full rounded-lg shadow-xs overflow-x-scroll">
+            <ConfirmDialog
+                open={open}
+                title="Delete Bus?"
+                message="Are you sure you want to delete this bus? This action cannot be undone."
+                onConfirm={() => {
+                    saveState()
+                    setOpen(false)
+                }}
+                onCancel={() => { setOpen(false) }}
+            />
             <div className={`${filteredBuses.length < 5 ? 'h-[30vh]' : ''}`}>
                 <table className="min-w-max sm:w-full table-auto whitespace-nowrap">
                     <thead>

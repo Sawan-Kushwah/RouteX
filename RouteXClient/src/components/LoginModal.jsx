@@ -2,6 +2,8 @@ import { useState } from 'react'
 import './LoginModal.css'
 import server from '../utils/backendServer'
 import axios from 'axios'
+import notify from '../utils/notification'
+
 
 const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
     const [email, setEmail] = useState('')
@@ -9,12 +11,12 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
     const [showPassword, setShowPassword] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
+    
 
     const handleSubmit = async (e) => {
         e.preventDefault()
         setError('')
         setLoading(true)
-        console.log(email, password);
         try {
             const response = await axios.post(`${server}/user/login`, {
                 email,
@@ -23,17 +25,21 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
                 { withCredentials: true }
             )
             if (response.status !== 200) {
-                setError(data.message || 'Login failed')
+                setError(response.data.message || 'Login failed')
+                notify({type: "error" ,message : response.data.message});
                 return
             }
 
             console.log('Login successful:', response.data)
+            notify({type: "success", message: "Login successful:"})
             setEmail('')
             setPassword('')
             if (typeof onLoginSuccess === 'function') onLoginSuccess(response.data)
             onClose()
         } catch (err) {
-            setError('Error connecting to server: ' + err.message)
+            setError('Error connecting to server')
+            notify({type: "error" ,message : "Error connecting to server"});
+            console.log(err.message);
         } finally {
             setLoading(false)
         }

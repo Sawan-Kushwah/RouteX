@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React, { useState } from 'react'
 import server from '../utils/backendServer';
+import { toast } from 'react-toastify';
 export default function RouteForm({ onClose, setRoutesDataChanged, availableBuses = [], setBusDataChanged }) {
     const [routeName, setRouteNumber] = useState('')
     const [stops, setStops] = useState([])
@@ -47,13 +48,12 @@ export default function RouteForm({ onClose, setRoutesDataChanged, availableBuse
                     setSelectedBusId(null)
                 }
             } else {
-                alert('Please enter a route name and at least one stop')
+                toast.warning('Please enter a route name and at least one stop')
             }
         } catch (error) {
             console.error("Error adding route:", error);
-            alert('Failed to add route. Please try again. route might already exist.')
-        }
-
+            toast.error('Failed to add route. Please try again. route might already exist.')
+        } 
 
     }
 

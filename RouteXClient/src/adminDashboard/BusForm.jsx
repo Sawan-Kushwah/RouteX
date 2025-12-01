@@ -1,16 +1,18 @@
 import { useState } from 'react'
 import axios from 'axios'
 import server from '../utils/backendServer'
+import { toast } from 'react-toastify'
 
 export default function BusForm({ onClose, setBusDataChanged, setRoutesDataChanged }) {
     const [busNo, setBusNo] = useState()
     const [numberPlate, setNumberPlate] = useState('')
     const [status, setStatus] = useState('inactive')
+    const [addedBus, setAddedBus] = useState(null)
 
     const handleSubmit = async (e) => {
         e.preventDefault()
         if (!busNo.trim() || !numberPlate.trim()) {
-            alert('Please enter bus number and number plate')
+            toast.info('Please enter bus number and number plate')
             return
         }
         // console.log('submitting bus:', { busNo, numberPlate, status })
@@ -20,18 +22,21 @@ export default function BusForm({ onClose, setBusDataChanged, setRoutesDataChang
             status: status.toLowerCase()
         })
         if (response.status === 200) {
+            setAddedBus(response.data.bus)
+           
             setBusNo('')
             setNumberPlate('')
             setStatus("inactive")
             setBusDataChanged(true);
             setRoutesDataChanged(true)
+            setAddedBus(null)
             if (typeof onClose === 'function') onClose()
         } else {
-            alert('Failed to add bus. Please try again.')
+            toast.error('Failed to add bus. Please try again.')
             return
         }
     }
- 
+
 
     return (
         <>
@@ -48,7 +53,14 @@ export default function BusForm({ onClose, setBusDataChanged, setRoutesDataChang
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Bus No</label>
                             <input
                                 value={busNo}
-                                onChange={(e) => setBusNo(e.target.value)}
+                                onChange={(e) => { 
+                                    if(typeof e.target.value === "string")
+                                    setBusNo(e.target.value)
+                                    else{
+                                        toast.warning("bus No should be Number");
+                                    }
+                                }
+                            }
                                 className="w-full mt-1 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 placeholder="e.g. 101"
                             />
@@ -58,7 +70,13 @@ export default function BusForm({ onClose, setBusDataChanged, setRoutesDataChang
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Number Plate</label>
                             <input
                                 value={numberPlate.toUpperCase()}
-                                onChange={(e) => setNumberPlate(e.target.value)}
+                                onChange={(e) =>
+                                    {
+                                        
+                                            setNumberPlate(e.target.value)
+                                       
+                                    }
+                                    }
                                 className="w-full mt-1 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 placeholder="e.g., ABC-1234"
                             />
@@ -83,6 +101,8 @@ export default function BusForm({ onClose, setBusDataChanged, setRoutesDataChang
                     </form>
                 </div>
             </div>
+
+           
         </>
     )
 }

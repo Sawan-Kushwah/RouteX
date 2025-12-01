@@ -2,11 +2,12 @@ import { useState } from 'react'
 import axios from 'axios'
 import server from '../utils/backendServer'
 import formatUpdateTime from '../utils/formatUpdateTime'
+import { toast } from 'react-toastify'
 
 
 export default function DriverDashboard({ filteredDrivers, setDriverDataChanged }) {
     // drivers and setDrivers are expected to be provided by AdminDashboard
-    const [showDeleteSuccess, setShowDeleteSuccess] = useState(false)
+
     const [deletedDriver, setDeletedDriver] = useState(null)
 
     const [editingId, setEditingId] = useState(null)
@@ -19,12 +20,12 @@ export default function DriverDashboard({ filteredDrivers, setDriverDataChanged 
             const response = await axios.delete(`${server}/driver/deleteDriver/${driverId}`)
             if (response.status === 200) {
                 setDeletedDriver(response.data.driver)
-                setShowDeleteSuccess(true)
+               
                 setDriverDataChanged(true)
             }
         } catch (error) {
             console.error('Error deleting driver:', error)
-            alert('Failed to delete driver')
+            toast.error('Failed to delete driver')
         }
     }
 
@@ -39,19 +40,25 @@ export default function DriverDashboard({ filteredDrivers, setDriverDataChanged 
 
     const handleSaveEdit = async (driverId) => {
         try {
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if(!emailPattern.test(editData.email)) {
+                toast.warning("Invalid email input")
+                return null;
+            }
             const response = await axios.put(`${server}/driver/updateDriver/${driverId}`, {
                 email: editData.email,
                 firstName: editData.firstName,
                 lastName: editData.lastName
             })
             if (response.status === 200) {
+                toast.success("Bus data Edited success fully")
                 setDriverDataChanged(true);
                 setEditingId(null)
                 setEditData({})
             }
         } catch (error) {
             console.error('Error updating driver:', error)
-            alert('Failed to update driver')
+            toast.error('Failed to update driver')
         }
     }
 
@@ -85,7 +92,10 @@ export default function DriverDashboard({ filteredDrivers, setDriverDataChanged 
                                                     <input
                                                         type="text"
                                                         value={editData.firstName}
-                                                        onChange={(e) => handleInputChange('firstName', e.target.value)}
+                                                        onChange={(e) => {
+                                                            if(typeof e.target.value === String)
+                                                            handleInputChange('firstName', e.target.value)
+                                                        }}
                                                         className="w-full px-2 py-1 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                                                     />
                                                 ) : (
@@ -98,7 +108,10 @@ export default function DriverDashboard({ filteredDrivers, setDriverDataChanged 
                                                     <input
                                                         type="text"
                                                         value={editData.lastName}
-                                                        onChange={(e) => handleInputChange('lastName', e.target.value)}
+                                                        onChange={(e) => {
+                                                             if(typeof e.target.value === String)
+                                                            handleInputChange('lastName', e.target.value)
+                                                        }}
                                                         className="w-full px-2 py-1 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                                                     />
                                                 ) : (
@@ -111,7 +124,11 @@ export default function DriverDashboard({ filteredDrivers, setDriverDataChanged 
                                                     <input
                                                         type="email"
                                                         value={editData.email}
-                                                        onChange={(e) => handleInputChange('email', e.target.value)}
+                                                        onChange={(e) => {
+                                                          
+                                                                handleInputChange('email', e.target.value)
+                                                            
+                                                        }}
                                                         className="w-full px-2 py-1 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                                                     />
                                                 ) : (
