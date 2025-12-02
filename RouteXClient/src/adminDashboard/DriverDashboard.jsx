@@ -204,8 +204,8 @@ export default function DriverDashboard({ filteredDrivers, setDriverDataChanged 
 
             <ConfirmModal
                 open={confirmOpen}
-                title={`Delete Bus no ${selectedDriver?.busNo}?`}
-                message={`Are you sure you want to delete bus no ${selectedDriver?.busNo}? This action cannot be undone.`}
+                title={`Delete Driver ${selectedDriver?.firstName} ${selectedDriver?.lastName} ?`}
+                message={`Are you sure you want to delete driver ${selectedDriver?.firstName} ${selectedDriver?.lastName} ? This action cannot be undone.`}
                 onConfirm={handleDelete}
                 onCancel={() => setConfirmOpen(false)}
             />
