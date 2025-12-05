@@ -15,6 +15,10 @@ const busDriverSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    licenseValidity: {
+        type: Date,
+        require: true
+    }
 }, { timestamps: true });
 
 const BusDriver = mongoose.model('BusDriver', busDriverSchema);

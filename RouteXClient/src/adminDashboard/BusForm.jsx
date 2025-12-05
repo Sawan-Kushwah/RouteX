@@ -6,6 +6,10 @@ import { toast } from 'react-toastify'
 export default function BusForm({ onClose, setBusDataChanged, setRoutesDataChanged }) {
     const [busNo, setBusNo] = useState()
     const [numberPlate, setNumberPlate] = useState('')
+    const [pucExp, setPucExp] = useState(null);
+    const [fittnessExp, setFittnessExp] = useState(null);
+    const [roadTaxExp, setRoadTaxExp] = useState(null);
+    const [permitExp, setPermitExp] = useState(null);
     const [status, setStatus] = useState('inactive')
 
     const handleSubmit = async (e) => {
@@ -16,6 +20,10 @@ export default function BusForm({ onClose, setBusDataChanged, setRoutesDataChang
         }
         const response = await axios.post(`${server}/bus/addBus`, {
             busNo: busNo,
+            pucExp,
+            fittnessExp,
+            roadTaxExp,
+            permitExp,
             numberPlate: numberPlate.trim().toLowerCase(),
             status: status.toLowerCase()
         })
@@ -44,37 +52,70 @@ export default function BusForm({ onClose, setBusDataChanged, setRoutesDataChang
 
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-3">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Bus No</label>
-                            <input
-                                value={busNo}
-                                onChange={(e) => {
-                                    if (typeof e.target.value === "string")
-                                        setBusNo(e.target.value)
-                                    else {
-                                        toast.warning("bus No should be Number");
-                                    }
-                                }
-                                }
-                                className="w-full mt-1 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                placeholder="e.g. 101"
-                            />
-                        </div>
+                    <form onSubmit={handleSubmit} className="space-y-3 ">
+                        
+                        <div className='grid grid-cols-2 gap-4'>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Bus No</label>
+                                <input
+                                    value={busNo}
+                                    onChange={(e) => setBusNo(e.target.value)}
+                                    className="w-full mt-1 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    placeholder="e.g. 101"
+                                />
+                            </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Number Plate</label>
-                            <input
-                                value={numberPlate.toUpperCase()}
-                                onChange={(e) => {
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Number Plate</label>
+                                <input
+                                    value={numberPlate.toUpperCase()}
+                                    onChange={(e) => setNumberPlate(e.target.value)}
+                                    className="w-full mt-1 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    placeholder="e.g., AB-1234"
+                                />
+                            </div>
+                       
 
-                                    setNumberPlate(e.target.value)
+                        {/* Date Fields */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">PUC Expiry</label>
+                                <input
+                                    type="date"
+                                    value={pucExp || ''}
+                                    onChange={(e) => setPucExp(e.target.value)}
+                                    className="w-full mt-1 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                />
+                            </div>
 
-                                }
-                                }
-                                className="w-full mt-1 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                placeholder="e.g., ABC-1234"
-                            />
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Fitness Expiry</label>
+                                <input
+                                    type="date"
+                                    value={fittnessExp || ''}
+                                    onChange={(e) => setFittnessExp(e.target.value)}
+                                    className="w-full mt-1 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Road Tax Expiry</label>
+                                <input
+                                    type="date"
+                                    value={roadTaxExp || ''}
+                                    onChange={(e) => setRoadTaxExp(e.target.value)}
+                                    className="w-full mt-1 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Permit Expiry</label>
+                                <input
+                                    type="date"
+                                    value={permitExp || ''}
+                                    onChange={(e) => setPermitExp(e.target.value)}
+                                    className="w-full mt-1 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                />
+                            </div>
                         </div>
 
                         <div>
@@ -94,6 +135,7 @@ export default function BusForm({ onClose, setBusDataChanged, setRoutesDataChang
                             <button type="submit" className="px-3 py-2 bg-purple-600 text-white cursor-pointer rounded-md hover:bg-purple-700">Add Bus</button>
                         </div>
                     </form>
+
                 </div>
             </div>
 
