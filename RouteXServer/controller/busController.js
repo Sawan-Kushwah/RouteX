@@ -25,18 +25,18 @@ const getAllBuses = async (req, res) => {
 
 const addBus = async (req, res) => {
     try {
-        const { busNo, numberPlate, status } = req.body;
+        const { busNo, numberPlate, status, pucExp, fittnessExp , roadTaxExp, permitExp } = req.body;
         const existingBus = await Bus.findOne({ $or: [{ busNo }, { numberPlate }] });
         if (existingBus) {
             return res.status(400).json({ message: "Bus with the same number or plate already exists" });
         }
-        const newBus = new Bus({ busNo, numberPlate, status });
+        const newBus = new Bus({ busNo, numberPlate, status,  pucExp, fittnessExp, roadTaxExp, permitExp });
         await newBus.save();
         res.status(200).json({ message: "Bus added successfully", bus: newBus });
     }
     catch (error) {
         res.status(500).json({ message: "Error adding bus", error: error.message });
-    }
+    } 
 }
 
 const updateBus = async (req, res) => {

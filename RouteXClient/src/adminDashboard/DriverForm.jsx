@@ -9,15 +9,22 @@ export default function DriverForm({ onClose, setDriverDataChanged }) {
     const [confirmPassword, setConfirmPassword] = useState('')
     const [firstName, setFirstName] = useState('')
     const [lastName, setLastName] = useState('')
+    const [licenseValidity, setLicenseValidity] = useState(null);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+
+
+    
     const handleSubmit = async (e) => {
         e.preventDefault()
 
-        if (!email || !password || !confirmPassword) {
+        if (!email || !password || !confirmPassword ) {
             toast.warning('Email and password are required')
             return
+        }
+        if(!licenseValidity){
+            toast.warning("License Validity is Require")
         }
 
         if (password !== confirmPassword) {
@@ -29,6 +36,7 @@ export default function DriverForm({ onClose, setDriverDataChanged }) {
             const response = await axios.post(`${server}/driver/addDriver`, {
                 email,
                 password,
+                licenseValidity,
                 firstName: firstName || 'Driver',
                 lastName: lastName || ''
             })
@@ -98,6 +106,17 @@ export default function DriverForm({ onClose, setDriverDataChanged }) {
                                     onChange={(e) => setLastName(e.target.value)}
                                     className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
                                     placeholder="Doe"
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <div className="flex flex-col gap-1">
+                                <label className="font-medium">{"License Validity"}</label>
+                                <input
+                                    type="Date"
+                                    value={licenseValidity}
+                                    onChange={(e) => setLicenseValidity(e.target.value)}
+                                    className="border p-2 rounded-md"
                                 />
                             </div>
                         </div>
