@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import axios from 'axios'
 import server from '../utils/backendServer';
-import formatUpdateTime from '../utils/formatUpdateTime';
+import { formatLicenseValidity } from '../utils/formatUpdateTime';
 import { toast } from 'react-toastify';
 import ConfirmModal from './ConfirmModal';
 export default function BusDashboard({ filteredBuses, setBusDataChanged, setRoutesDataChanged }) {
@@ -33,7 +33,11 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged, setRout
         setEditData({
             busNo: bus.busNo,
             numberPlate: bus.numberPlate,
-            status: bus.status
+            status: bus.status,
+            pucExp: bus.pucExp,
+            fittnessExp: bus.fittnessExp,
+            roadTaxExp: bus.roadTaxExp,
+            permitExp: bus.permitExp
         })
     }
 
@@ -50,6 +54,10 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged, setRout
                 busNo: editData.busNo,
                 numberPlate: editData.numberPlate.toLowerCase(),
                 status: editData.status.toLowerCase(),
+                pucExp: editData.pucExp,
+                fittnessExp: editData.fittnessExp,
+                roadTaxExp: editData.roadTaxExp,
+                permitExp: editData.permitExp,
                 originalStatus: editingOrignalState
             })
 
@@ -68,7 +76,6 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged, setRout
             console.error(error)
         }
     }
-
 
     const handleCancel = () => {
         setEditingId(null)
@@ -93,6 +100,10 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged, setRout
                                 <th className="px-3 py-2 sm:px-4 sm:py-3">Bus Number</th>
                                 <th className="px-3 py-2 sm:px-4 sm:py-3">Number Plate</th>
                                 <th className="px-3 py-2 sm:px-4 sm:py-3">Status</th>
+                                <th className="px-3 py-2 sm:px-4 sm:py-3">PUC Expiry</th>
+                                <th className="px-3 py-2 sm:px-4 sm:py-3">Tax Expiry</th>
+                                <th className="px-3 py-2 sm:px-4 sm:py-3">Fittness Expiry</th>
+                                <th className="px-3 py-2 sm:px-4 sm:py-3">Permit</th>
                                 <th className="px-3 py-2 sm:px-4 sm:py-3">Last Update</th>
                                 <th className="px-3 py-2 sm:px-4 sm:py-3">Actions</th>
                             </tr>
@@ -110,7 +121,7 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged, setRout
                                                     type="text"
                                                     value={editData.busNo}
                                                     onChange={(e) => handleInputChange('busNo', e.target.value)}
-                                                    className="w-full px-2 py-1 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+                                                    className="w-15 px-2 py-1 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                                                 />
                                             ) : (
                                                 `BUS - ${bus.busNo}`
@@ -124,7 +135,7 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged, setRout
                                                     type="text"
                                                     value={editData.numberPlate.toUpperCase()}
                                                     onChange={(e) => handleInputChange('numberPlate', e.target.value)}
-                                                    className="w-full px-2 py-1 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+                                                    className="w-28 px-2 py-1 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                                                 />
                                             ) : (
                                                 bus.numberPlate.toUpperCase()
@@ -137,7 +148,7 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged, setRout
                                                 <select
                                                     value={editData.status}
                                                     onChange={(e) => handleInputChange('status', e.target.value)}
-                                                    className="px-2 py-1 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+                                                    className="w-20 px-2 py-1 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                                                 >
                                                     <option value="inactive">Inactive</option>
                                                     <option value="maintenance">Maintenance</option>
@@ -150,8 +161,7 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged, setRout
                                                             : bus.status === 'inactive'
                                                                 ? 'text-red-700 bg-red-100 dark:bg-red-700 dark:text-red-100'
                                                                 : 'text-yellow-700 bg-yellow-100 dark:bg-yellow-700 dark:text-yellow-100'
-                                                        }
-                    `}
+                                                        }`}
                                                 >
                                                     {bus.status === 'active'
                                                         ? 'Active'
@@ -162,9 +172,93 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged, setRout
                                             )}
                                         </td>
 
+                                        <td className="px-3 py-2 sm:px-4 sm:py-3">
+                                            {
+                                                editingId == bus._id ? (
+
+                                                    <div className="flex flex-col gap-1">
+                                                        <label className="font-medium">{"PUC expiry"}</label>
+
+                                                        <input
+                                                            type="date"
+                                                            value={bus.pucExp}
+                                                            onChange={(e) => handleInputChange("pucExp", e.target.value)}
+                                                            className="border w-28 p-2 rounded-md"
+                                                        />
+                                                    </div>
+
+                                                )
+                                                    : !bus.pucExp ?   "Not Updated" 
+                                                    : 
+                                                    
+                                                    formatLicenseValidity(bus.pucExp) 
+                                            }
+                                            
+                                        </td>
+                                        <td className="px-3 py-2 sm:px-4 sm:py-3">
+                                            {
+                                                editingId == bus._id ? (
+
+                                                    <div className="flex flex-col gap-1">
+                                                        <label className="font-medium">{"Rode Tax expiry"}</label>
+
+                                                        <input
+                                                            type="date"
+                                                            value={bus.pucExp}
+                                                            onChange={(e) => handleInputChange("roadTaxExp", e.target.value)}
+                                                            className="border w-28 p-2 rounded-md"
+                                                        />
+                                                    </div>
+
+                                                )
+                                                    : bus.roadTaxExp ? formatLicenseValidity(bus.roadTaxExp) : "Not Updated"
+                                            }
+
+                                        </td>
+                                        <td className="px-3 py-2 sm:px-4 sm:py-3">
+                                            {
+                                                editingId == bus._id ? (
+
+                                                    <div className="flex flex-col gap-1">
+                                                        <label className="font-medium">{"Fittness expiry"}</label>
+
+                                                        <input
+                                                            type="date"
+                                                            value={bus.fittnessExp}
+                                                            onChange={(e) => handleInputChange("fittnessExp", e.target.value)}
+                                                            className="border w-28 p-2 rounded-md"
+                                                        />
+                                                    </div>
+
+                                                )
+                                                    : bus.fittnessExp ? formatLicenseValidity(bus.fittnessExp) : "Not Updated"
+                                            }
+
+                                        </td>
+                                        <td className="px-3 py-2 sm:px-4 sm:py-3">
+                                            {
+                                                editingId == bus._id ? (
+
+                                                    <div className="flex flex-col gap-1">
+                                                        <label className="font-medium">{"Permit expiry"}</label>
+
+                                                        <input
+                                                            type="date"
+                                                            value={bus.permitExp}
+                                                            onChange={(e) => handleInputChange("permitExp", e.target.value)}
+                                                            className="border w-28 p-2 rounded-md"
+                                                        />
+                                                    </div>
+
+                                                )
+                                                    : bus.fittnessExp ? formatLicenseValidity(bus.permitExp) : "Not Updated"
+                                            }
+
+                                        </td>
+
                                         {/* LAST UPDATE */}
                                         <td className="px-3 py-2 sm:px-4 sm:py-3">
-                                            {formatUpdateTime(bus.updatedAt)}
+                                            {formatLicenseValidity(bus.updatedAt)}
                                         </td>
 
                                         {/* ACTIONS */}

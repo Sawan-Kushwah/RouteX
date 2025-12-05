@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import server from "../utils/backendServer";
-import formatUpdateTime from "../utils/formatUpdateTime";
+import {formatUpdateTime , formatLicenseValidity} from "../utils/formatUpdateTime";
 import { toast } from "react-toastify";
 import ConfirmModal from "./ConfirmModal";
 
@@ -32,6 +32,7 @@ export default function DriverDashboard({ filteredDrivers, setDriverDataChanged 
             firstName: driver.firstName,
             lastName: driver.lastName,
             email: driver.email,
+            licenseValidity: driver.licenseValidity
         });
     };
 
@@ -58,6 +59,7 @@ export default function DriverDashboard({ filteredDrivers, setDriverDataChanged 
                     firstName: editData.firstName,
                     lastName: editData.lastName,
                     email: editData.email,
+                    licenseValidity: editData.licenseValidity
                 }
             );
 
@@ -93,9 +95,9 @@ export default function DriverDashboard({ filteredDrivers, setDriverDataChanged 
                             <table className="w-full whitespace-no-wrap">
                                 <thead>
                                     <tr className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800">
-                                        <th className="px-4 py-3">First Name</th>
-                                        <th className="px-4 py-3">Last Name</th>
+                                        <th className="px-4 py-3">Name</th>
                                         <th className="px-4 py-3">Email</th>
+                                        <th className="px-4 py-3">License Validity</th>
                                         <th className="px-4 py-3">Last Update</th>
                                         <th className="px-4 py-3">Actions</th>
                                     </tr>
@@ -108,38 +110,66 @@ export default function DriverDashboard({ filteredDrivers, setDriverDataChanged 
                                                 {/* FIRST NAME */}
                                                 <td className="px-4 py-3 text-sm">
                                                     {editingId === driver._id ? (
-                                                        <input
-                                                            type="text"
-                                                            value={editData.firstName}
-                                                            onChange={(e) =>
-                                                                handleInputChange("firstName", e.target.value)
-                                                            }
-                                                            className="w-full px-2 py-1 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
-                                                        />
+                                                        <div className="flex justify-between">
+                                                            <div className="w-9/20">
+
+                                                                <label >Last name</label>
+                                                                <input
+                                                                    type="text"
+                                                                    value={editData.firstName}
+                                                                    onChange={(e) =>
+                                                                        handleInputChange("firstName", e.target.value)
+                                                                    }
+                                                                    className=" w-full px-2 py-1 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+                                                                />
+                                                            </div>
+                                                            <div className="w-9/20">
+
+                                                                <label >Last name</label>
+                                                                <input
+                                                                    type="text"
+                                                                    value={editData.lastName}
+                                                                    onChange={(e) =>
+                                                                        handleInputChange("lastName", e.target.value)
+                                                                    }
+                                                                    className="w-full px-2 py-1 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+                                                                />
+                                                            </div>
+                                                        </div>
                                                     ) : (
-                                                        driver.firstName
+                                                        driver.firstName + " " + driver.lastName
                                                     )}
                                                 </td>
 
-                                                {/* LAST NAME */}
-                                                <td className="px-4 py-3 text-sm">
-                                                    {editingId === driver._id ? (
-                                                        <input
-                                                            type="text"
-                                                            value={editData.lastName}
-                                                            onChange={(e) =>
-                                                                handleInputChange("lastName", e.target.value)
-                                                            }
-                                                            className="w-full px-2 py-1 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
-                                                        />
-                                                    ) : (
-                                                        driver.lastName
-                                                    )}
-                                                </td>
+
 
                                                 {/* EMAIL (Not editable in UI) */}
                                                 <td className="px-4 py-3 text-sm">
                                                     {driver.email}
+                                                </td>
+
+                                                <td className="px-4 py-3 text-sm">
+                                                    {
+                                                        editingId == driver._id ? (
+                                                            // <input
+                                                            // type="date"
+                                                            // className=" w-full px-2 py-1 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+                                                            // placeholder={ driver.licenseValidity || null}
+                                                            // />
+
+                                                            <div className="flex flex-col gap-1">
+                                                                <label className="font-medium">{"Date"}</label>
+
+                                                                <input
+                                                                    type="date"
+                                                                    value={driver.licenseValidity}
+                                                                    onChange={(e) => handleInputChange("licenseValidity",e.target.value)}
+                                                                    className="border p-2 rounded-md"
+                                                                />
+                                                            </div>
+
+                                                        )
+                                                            : driver.licenseValidity ? formatLicenseValidity(driver.licenseValidity) : "Not Updated"}
                                                 </td>
 
                                                 <td className="px-4 py-3 text-sm">

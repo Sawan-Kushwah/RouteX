@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useState } from 'react';
 import server from '../utils/backendServer';
-import formatUpdateTime from '../utils/formatUpdateTime';
+import {formatUpdateTime} from '../utils/formatUpdateTime';
 import { toast } from 'react-toastify';
 import ConfirmModal from './ConfirmModal';
 

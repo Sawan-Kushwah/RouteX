@@ -4,6 +4,7 @@ import controllerBus from '../controller/busController.js';
 
 router.get('/getAllBuses', controllerBus.getAllBuses);
 router.post('/addBus', controllerBus.addBus);
+// router.post('/addAllBus', controllerBus.addAllBus);
 router.patch('/updateBus/:id', controllerBus.updateBus);
 router.delete('/deleteBus/:id', controllerBus.deleteBus);
 router.get('/getBus/:id', controllerBus.getBusById);

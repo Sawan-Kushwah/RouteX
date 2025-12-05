@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import server from '../utils/backendServer';
-import formatUpdateTime from '../utils/formatUpdateTime';
-import { toast } from 'react-toastify';
-import { Dot, Search, X } from 'lucide-react';
+import {formatUpdateTime} from '../utils/formatUpdateTime';
+// import { toast } from 'react-toastify'; 
+import { Search, X } from 'lucide-react';
 import SearchBarSkeleton from './SearchBarSkeleton';
 
 export default function SearchBar() {
@@ -37,7 +37,7 @@ export default function SearchBar() {
                 }
             } catch (error) {
                 console.error("Error searching routes:", error);
-                toast.error("unable to find routs");
+                // toast.error("unable to find routs");
                 setSearchResults([]);
             } finally {
                 setIsSearching(false);

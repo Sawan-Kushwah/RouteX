@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 
 const addDriver = async (req, res) => {
     try {
-        const { email, password, firstName, lastName } = req.body;
+        const { email, password, firstName, lastName , licenseValidity} = req.body;
         const existingDriver = await BusDriver.findOne({ email });
 
         if (existingDriver) {
@@ -18,7 +18,7 @@ const addDriver = async (req, res) => {
                 if (err) {
                     return res.status(500).json({ message: "Error hashing password", error: err.message });
                 }
-                const newDriver = new BusDriver({ firstName, lastName, email, password: hashedPassword });
+                const newDriver = new BusDriver({ firstName, lastName, email, licenseValidity, password: hashedPassword });
                 await newDriver.save();
                 res.status(200).json({ message: "Driver added successfully", driver: newDriver });
             });
@@ -31,7 +31,7 @@ const addDriver = async (req, res) => {
 
 const getAllDrivers = async (req, res) => {
     try {
-        const drivers = await BusDriver.find({}).select("_id email firstName lastName updatedAt")
+        const drivers = await BusDriver.find({}).select("_id email firstName lastName licenseValidity updatedAt")
         res.status(200).json({ message: "All driver ", drivers });
     } catch (error) {
         res.status(500).json({ message: "Error fetching drivers", error: error.message });
@@ -43,17 +43,19 @@ const updateDriver = async (req, res) => {
     try {
         const driverId = req.params.id;
         const updates = req.body;
+        console.log(updates)
         const updatedDriver = await BusDriver.findByIdAndUpdate(driverId, updates, { new: true });
 
         if (!updatedDriver) {
             return res.status(404).json({ message: "Bus not found" });
         }
 
+        console.log(updatedDriver)
         res.status(200).json({ message: "Bus updated successfully", bus: updatedDriver });
     }
     catch (error) {
         res.status(500).json({ message: "Error updating bus", error: error.message });
-    }
+    } 
 }
 
 const deleteDriver = async (req, res) => {
