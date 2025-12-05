@@ -329,8 +329,8 @@ export default function RoutesDashboard({ filteredRoutes, setRoutesDataChanged, 
 
             <ConfirmModal
                 open={confirmOpen}
-                title={`Delete Bus no ${selectedRoute?.routeNo}?`}
-                message={`Are you sure you want to delete bus no ${selectedRoute?.routeNo}? This action cannot be undone.`}
+                title={`Delete Route no ${selectedRoute?.routeNo}?`}
+                message={`Are you sure you want to delete Route no ${selectedRoute?.routeNo}? This action cannot be undone.`}
                 onConfirm={handleDelete}
                 onCancel={() => setConfirmOpen(false)}
             />

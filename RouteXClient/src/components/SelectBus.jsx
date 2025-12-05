@@ -90,7 +90,6 @@ function SelectBus() {
   // Fetch routes from server on mount
   useEffect(() => {
     fetchRoutes()
-    console.log('fetching routes');
   }, [])
 
   const fetchRoutes = async () => {

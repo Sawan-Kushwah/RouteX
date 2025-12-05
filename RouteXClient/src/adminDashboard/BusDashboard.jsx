@@ -74,11 +74,8 @@ export default function BusDashboard({ filteredBuses, setBusDataChanged, setRout
         } catch (error) {
             toast.error('Failed to update bus. Please try again.')
             console.error(error)
-
         }
     }
-
-
 
     const handleCancel = () => {
         setEditingId(null)
